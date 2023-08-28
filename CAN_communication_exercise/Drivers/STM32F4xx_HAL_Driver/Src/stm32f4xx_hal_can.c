@@ -1571,6 +1571,8 @@ HAL_StatusTypeDef HAL_CAN_GetRxMessage(CAN_HandleTypeDef *hcan, uint32_t RxFifo,
     aData[6] = (uint8_t)((CAN_RDH0R_DATA6 & hcan->Instance->sFIFOMailBox[RxFifo].RDHR) >> CAN_RDH0R_DATA6_Pos);
     aData[7] = (uint8_t)((CAN_RDH0R_DATA7 & hcan->Instance->sFIFOMailBox[RxFifo].RDHR) >> CAN_RDH0R_DATA7_Pos);
 
+//    CDC_Transmit_FS(aData, 8);
+
     /* Release the FIFO */
     if (RxFifo == CAN_RX_FIFO0) /* Rx element is assigned to Rx FIFO 0 */
     {

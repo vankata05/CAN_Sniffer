@@ -129,7 +129,7 @@ int main(void)
   }
   uint8_t* smth = getState();
 
-//  CDC_Transmit_FS(smth, strlen((char*)smth));
+  CDC_Transmit_FS(smth, strlen((char*)smth));
 
   uint32_t mailbox;
   CAN_TxHeaderTypeDef pHead;
@@ -147,16 +147,19 @@ int main(void)
 //  uint8_t smth[6] = "sniff ";
 //  uint16_t smth_len = 6;
 
-  uint8_t data[10];
-
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 	  CAN_RxHeaderTypeDef rxPHead;
-	  HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO0, &rxPHead, data);
-	  CDC_Transmit_FS(data, 8);
+//	  HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO0, &rxPHead, data);
+//	  CDC_Transmit_FS(data, 8);
+//	  smth = getState();
+
+//	  CDC_Transmit_FS(smth, strlen((char*)smth));
+
+	  HAL_Delay(100);
 
 //	  HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO1, &rxPHead, data);
 //	  CDC_Transmit_FS(data, rxPHead.DLC);
@@ -177,6 +180,7 @@ int main(void)
   free(smth);
   /* USER CODE END 3 */
 }
+
 
 /**
   * @brief System Clock Configuration
