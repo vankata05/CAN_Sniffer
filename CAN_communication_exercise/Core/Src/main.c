@@ -28,14 +28,14 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+volatile uint8_t IRQRX0;
+volatile uint8_t IRQRX1;
+volatile uint8_t IRQTX;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-volatile uint8_t IRQRX0;
-volatile uint8_t IRQRX1;
-volatile uint8_t IRQTX;
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -47,6 +47,7 @@ volatile uint8_t IRQTX;
 CAN_HandleTypeDef hcan1;
 
 /* USER CODE BEGIN PV */
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -112,7 +113,6 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USB_DEVICE_Init();
-//  MX_CAN1_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -125,26 +125,37 @@ int main(void)
   }
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
 
-  uint8_t PRE[4] = {21, 42, 84, 210};
+  uint32_t PRE[4] = {42, 210, 84, 21};
 
   for(uint8_t i = 0; i < 5; i++){
-
-	  if(IRQRX0 == 0 && IRQRX1 == 0){
-		  HAL_CAN_DeInit(&hcan1);
+	  if(IRQRX1 == 0 && IRQRX0 == 0){
+		  HAL_CAN_Stop(&hcan1);
 		  MX_CAN1_Init(PRE[i]);
 		  HAL_CAN_Start(&hcan1);
-		  HAL_Delay(1000);
+		  HAL_Delay(100);
+	  }else{
+		  if(IRQRX1 == 1 || IRQRX0 == 1){
+			  char str[42];
+			  sprintf(str, "BAUDRATE DETECTED WITH PRESCALER OF %ld\n", PRE[i-1]);
+			  CDC_Transmit_FS((uint8_t*)str, strlen(str));
+		  }
 	  }
   }
 
+  if(IRQRX1 == 0 && IRQRX0 == 0){
+	  Error_Handler();
+  }
+
+//  **Start CAN**
 //  if(HAL_CAN_Start(&hcan1) != HAL_OK){
 //	  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
 //  }
-  uint8_t* smth = getState();
 
-  CDC_Transmit_FS(smth, strlen((char*)smth));
+//  **Print State**
+//  uint8_t* smth = getState();
+//  CDC_Transmit_FS(smth, strlen((char*)smth));
 
-//  **Transmit message**
+//  **Transmit**
 //  uint32_t mailbox;
 //  CAN_TxHeaderTypeDef pHead;
 //  pHead.StdId = 0x100;
@@ -154,8 +165,8 @@ int main(void)
 //
 //  HAL_CAN_AddTxMessage(&hcan1, &pHead, (uint8_t*)"HEWWO", &mailbox);
 
-//  smth = getState();
-//
+//  **Print State**
+//  uint8_t* smth = getState();
 //  CDC_Transmit_FS(smth, strlen((char*)smth));
 
 //  uint8_t smth[6] = "sniff ";
@@ -193,6 +204,7 @@ int main(void)
   }
   /* USER CODE END 3 */
 }
+
 
 /**
   * @brief System Clock Configuration
@@ -258,8 +270,8 @@ static void MX_CAN1_Init(uint32_t Prescaler)
   hcan1.Init.Prescaler = Prescaler;
   hcan1.Init.Mode = CAN_MODE_NORMAL;
   hcan1.Init.SyncJumpWidth = CAN_SJW_1TQ;
-  hcan1.Init.TimeSeg1 = CAN_BS1_1TQ;
-  hcan1.Init.TimeSeg2 = CAN_BS2_2TQ;
+  hcan1.Init.TimeSeg1 = CAN_BS1_2TQ;
+  hcan1.Init.TimeSeg2 = CAN_BS2_1TQ;
   hcan1.Init.TimeTriggeredMode = DISABLE;
   hcan1.Init.AutoBusOff = DISABLE;
   hcan1.Init.AutoWakeUp = DISABLE;
@@ -271,7 +283,12 @@ static void MX_CAN1_Init(uint32_t Prescaler)
     Error_Handler();
   }
   /* USER CODE BEGIN CAN1_Init 2 */
+  HAL_CAN_ActivateNotification(&hcan1, 0xFFFFFFFFU);
+  CAN_FilterTypeDef filters = {0};
+  filters.FilterActivation = 1;
+//  memset(&filters, 0, sizeof(CAN_FilterTypeDef));
 
+  HAL_CAN_ConfigFilter(&hcan1, &filters);
   /* USER CODE END CAN1_Init 2 */
 
 }

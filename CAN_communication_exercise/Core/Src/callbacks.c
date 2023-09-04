@@ -16,6 +16,6 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
 	  CAN_RxHeaderTypeDef rxPHead;
 	  HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO0, &rxPHead, data);
-	  CDC_Transmit_FS(data, 8);
+//	  CDC_Transmit_FS(data, 8);
 
 }
