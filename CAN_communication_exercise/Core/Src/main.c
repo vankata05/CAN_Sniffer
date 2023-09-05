@@ -143,6 +143,7 @@ int main(void)
   }
 
   if(IRQRX1 == 0 && IRQRX0 == 0){
+	  CDC_Transmit_FS((uint8_t*)"ERROR DETECTING BAUDRATE", 24);
 	  Error_Handler();
   }
 
@@ -155,15 +156,26 @@ int main(void)
 //  uint8_t* smth = getState();
 //  CDC_Transmit_FS(smth, strlen((char*)smth));
 
-//  **Transmit**
-//  uint32_t mailbox;
-//  CAN_TxHeaderTypeDef pHead;
-//  pHead.StdId = 0x100;
-//  pHead.IDE = CAN_ID_STD;
-//  pHead.RTR = CAN_RTR_DATA;
-//  pHead.DLC = 8;
+//    **Transmit**
+//  **PIDs Supported**
+  uint32_t mailbox;
+  CAN_TxHeaderTypeDef pHead;
+  pHead.StdId = 0x7DF;
+  pHead.IDE = CAN_ID_STD;
+  pHead.RTR = CAN_RTR_DATA;
+  pHead.DLC = 8;
+
+  uint8_t data[] = {0x02, 0x01, 0x00, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA};
+
+//  CAN_TxHeaderTypeDef TPpHead;
+//  TPpHead.StdId = 0x7DF;
+//  TPpHead.IDE = CAN_ID_STD;
+//  TPpHead.RTR = CAN_RTR_DATA;
+//  TPpHead.DLC = 8;
 //
-//  HAL_CAN_AddTxMessage(&hcan1, &pHead, (uint8_t*)"HEWWO", &mailbox);
+//  uint8_t TP_data[] = {0x02, 0x3E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
 
 //  **Print State**
 //  uint8_t* smth = getState();
@@ -174,6 +186,8 @@ int main(void)
 
   while (1)
   {
+	  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
+	  HAL_Delay(100);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
