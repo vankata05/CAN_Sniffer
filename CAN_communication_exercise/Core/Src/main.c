@@ -173,9 +173,11 @@ int main(void)
   TPpHead.RTR = CAN_RTR_DATA;
   TPpHead.DLC = 8;
 
-  uint8_t TP_data[] = {0x02, 0x3E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-  uint8_t readVin_Req[] = {0x04, 0x22, 0xF1, 0x90, 0x00, 0x00, 0x00, 0x00};
-  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
+  uint8_t TP_data[] = {0x02, 0x3E, 0x00, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA};
+//  uint8_t readVin_Req[] = {0x04, 0x22, 0xF1, 0x90, 0x00, 0x00, 0x00, 0x00};
+
+//  **Tester Present**
+  HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
 
 //  **Print State**
 //  uint8_t* smth = getState();
@@ -186,8 +188,15 @@ int main(void)
 
   while (1)
   {
+	  //  **Tester Present**
+	  HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
+
+	  HAL_Delay(25);
+
+	  //  **PIDs supported**
 	  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
-	  HAL_Delay(100);
+
+	  HAL_Delay(25);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

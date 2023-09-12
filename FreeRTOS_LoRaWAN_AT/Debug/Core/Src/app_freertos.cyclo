@@ -1,0 +1,3 @@
+../Core/Src/app_freertos.c:63:13:PreSleepProcessing	1
+../Core/Src/app_freertos.c:74:13:PostSleepProcessing	1
+../Core/Src/app_freertos.c:87:6:vApplicationGetIdleTaskMemory	1
