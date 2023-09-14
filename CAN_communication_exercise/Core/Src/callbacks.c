@@ -10,6 +10,7 @@
 
 extern uint8_t* getState();
 extern CAN_HandleTypeDef hcan1;
+//extern CAN_HandleTypeDef hcan2;
 
 uint8_t data[8];
 
@@ -17,6 +18,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
 	  CAN_RxHeaderTypeDef rxPHead = {0};
 	  HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO0, &rxPHead, data);
+//	  HAL_CAN_GetRxMessage(&hcan2, CAN_RX_FIFO0, &rxPHead, data);
 	  CDC_Transmit_FS(data, 8);
 //	  CDC_Transmit_FS(rxPHead.IDE, 4);
 

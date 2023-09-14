@@ -53,7 +53,7 @@ CAN_HandleTypeDef hcan1;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_CAN1_Init(uint32_t Prescaler);
+static void MX_CAN1_Init(uint32_t Prescaler, uint32_t Mode);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -127,17 +127,33 @@ int main(void)
 
   uint32_t PRE[4] = {42, 210, 84, 21};
 
-  for(uint8_t i = 0; i < 5; i++){
+  uint8_t i;
+  for(i = 0; i < 5; i++){
 	  if(IRQRX1 == 0 && IRQRX0 == 0){
-		  HAL_CAN_Stop(&hcan1);
-		  MX_CAN1_Init(PRE[i]);
-		  HAL_CAN_Start(&hcan1);
-		  HAL_Delay(100);
+		  if(i == 0){
+			  MX_CAN1_Init(PRE[0], CAN_MODE_SILENT);
+			  HAL_CAN_Start(&hcan1);
+			  HAL_Delay(100);
+		  }else{
+//			  HAL_GPIO_LockPin(GPIOD, GPIO_PIN_0);
+//			  HAL_GPIO_LockPin(GPIOD, GPIO_PIN_1);
+			  HAL_CAN_Stop(&hcan1);
+//			  HAL_Delay(100);
+			  MX_CAN1_Init(PRE[i], CAN_MODE_SILENT);
+			  HAL_CAN_Start(&hcan1);
+			  HAL_Delay(100);
+		  }
 	  }else{
 		  if(IRQRX1 == 1 || IRQRX0 == 1){
 			  char str[42];
 			  sprintf(str, "BAUDRATE DETECTED WITH PRESCALER OF %ld\n", PRE[i-1]);
 			  CDC_Transmit_FS((uint8_t*)str, strlen(str));
+			  HAL_CAN_Stop(&hcan1);
+//			  MX_CAN1_Init(PRE[i], CAN_MODE_NORMAL);
+			  hcan1.Init.Mode = CAN_MODE_NORMAL;
+			  HAL_CAN_Init(&hcan1);
+			  HAL_CAN_Start(&hcan1);
+
 		  }
 	  }
   }
@@ -173,11 +189,77 @@ int main(void)
   TPpHead.RTR = CAN_RTR_DATA;
   TPpHead.DLC = 8;
 
+  HAL_Delay(500);
+
   uint8_t TP_data[] = {0x02, 0x3E, 0x00, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA};
 //  uint8_t readVin_Req[] = {0x04, 0x22, 0xF1, 0x90, 0x00, 0x00, 0x00, 0x00};
 
+  HAL_Delay(500);
+
 //  **Tester Present**
   HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
+
+  //  **PIDs supported(01-20)**
+  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
+
+  HAL_Delay(500);
+
+  //  **Tester Present**
+    HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
+
+  //  **PIDs supported(21-40)**
+  data[2] = 0x20;
+  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
+
+  HAL_Delay(500);
+
+  //  **Tester Present**
+    HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
+
+  //  **PIDs supported(41-60)**
+  data[2] = 0x40;
+  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
+
+  HAL_Delay(500);
+
+  //  **Tester Present**
+    HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
+
+  //  **PIDs supported(61-80)**
+  data[2] = 0x60;
+  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
+
+  HAL_Delay(500);
+
+  //  **Tester Present**
+    HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
+
+  //  **PIDs supported(81-A0)**
+  data[2] = 0x80;
+  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
+
+  HAL_Delay(500);
+
+  //  **Tester Present**
+    HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
+
+  //  **PIDs supported(A1-C0)**
+  data[2] = 0xA0;
+  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
+
+  HAL_Delay(500);
+
+  //  **Tester Present**
+    HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
+
+  //  **PIDs supported(C1-E0)**
+  data[2] = 0xC0;
+  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
+
+  HAL_Delay(500);
+
+  //  **Tester Present**
+    HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
 
 //  **Print State**
 //  uint8_t* smth = getState();
@@ -189,14 +271,14 @@ int main(void)
   while (1)
   {
 	  //  **Tester Present**
-	  HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
+//	  HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
 
-	  HAL_Delay(25);
+//	  HAL_Delay(25);
 
 	  //  **PIDs supported**
-	  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
+//	  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
 
-	  HAL_Delay(25);
+//	  HAL_Delay(25);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -279,7 +361,7 @@ void SystemClock_Config(void)
   * @param None
   * @retval None
   */
-static void MX_CAN1_Init(uint32_t Prescaler)
+static void MX_CAN1_Init(uint32_t Prescaler, uint32_t Mode)
 {
 
   /* USER CODE BEGIN CAN1_Init 0 */
@@ -291,7 +373,7 @@ static void MX_CAN1_Init(uint32_t Prescaler)
   /* USER CODE END CAN1_Init 1 */
   hcan1.Instance = CAN1;
   hcan1.Init.Prescaler = Prescaler;
-  hcan1.Init.Mode = CAN_MODE_NORMAL;
+  hcan1.Init.Mode = Mode;
   hcan1.Init.SyncJumpWidth = CAN_SJW_1TQ;
   hcan1.Init.TimeSeg1 = CAN_BS1_2TQ;
   hcan1.Init.TimeSeg2 = CAN_BS2_1TQ;
