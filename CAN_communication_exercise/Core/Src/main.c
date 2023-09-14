@@ -268,6 +268,7 @@ void SystemClock_Config(void)
   * @param None
   * @retval None
   */
+
 static void MX_CAN1_Init(uint32_t Prescaler, uint32_t Mode)
 {
 
@@ -296,13 +297,28 @@ static void MX_CAN1_Init(uint32_t Prescaler, uint32_t Mode)
   }
   /* USER CODE BEGIN CAN1_Init 2 */
   HAL_CAN_ActivateNotification(&hcan1, 0xFFFFFFFFU);
+
+//  **Configure filters**
   CAN_FilterTypeDef filters = {0};
-  filters.FilterActivation = 1;
+
+
+  filters.FilterActivation = ENABLE;
+  filters.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+  filters.FilterBank = 0;
+  filters.FilterMode = CAN_FILTERMODE_IDMASK;
+  filters.FilterScale = CAN_FILTERSCALE_32BIT;
+  filters.FilterIdHigh = 0x7E8 << 5;
+  filters.FilterIdLow = 0;
+  filters.FilterMaskIdHigh = 0x7fd << 5;
+  filters.FilterMaskIdLow = 0;
+
 //  memset(&filters, 0, sizeof(CAN_FilterTypeDef));
 
-  HAL_CAN_ConfigFilter(&hcan1, &filters);
+  if (HAL_CAN_ConfigFilter(&hcan1, &filters) != HAL_OK)
+  {
+    Error_Handler();
+  }
   /* USER CODE END CAN1_Init 2 */
-
 }
 
 /**
