@@ -163,15 +163,6 @@ int main(void)
 	  Error_Handler();
   }
 
-//  **Start CAN**
-//  if(HAL_CAN_Start(&hcan1) != HAL_OK){
-//	  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
-//  }
-
-//  **Print State**
-//  uint8_t* smth = getState();
-//  CDC_Transmit_FS(smth, strlen((char*)smth));
-
 //    **Transmit**
 //  **PIDs Supported**
   uint32_t mailbox;
@@ -183,129 +174,45 @@ int main(void)
 
   uint8_t data[] = {0x02, 0x01, 0x00, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA};
 
-  CAN_TxHeaderTypeDef TPpHead;
-  TPpHead.StdId = 0x700;
-  TPpHead.IDE = CAN_ID_STD;
-  TPpHead.RTR = CAN_RTR_DATA;
-  TPpHead.DLC = 8;
-
-  HAL_Delay(500);
-
-  uint8_t TP_data[] = {0x02, 0x3E, 0x00, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA};
-//  uint8_t readVin_Req[] = {0x04, 0x22, 0xF1, 0x90, 0x00, 0x00, 0x00, 0x00};
-
-  HAL_Delay(500);
-
-//  **Tester Present**
-  HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
-
   //  **PIDs supported(01-20)**
   HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
-
-  HAL_Delay(500);
-
-  //  **Tester Present**
-    HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
+  HAL_Delay(50);
 
   //  **PIDs supported(21-40)**
   data[2] = 0x20;
   HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
-
-  HAL_Delay(500);
-
-  //  **Tester Present**
-    HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
+  HAL_Delay(50);
 
   //  **PIDs supported(41-60)**
   data[2] = 0x40;
   HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
-
-  HAL_Delay(500);
-
-  //  **Tester Present**
-    HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
+  HAL_Delay(50);
 
   //  **PIDs supported(61-80)**
   data[2] = 0x60;
   HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
-
-  HAL_Delay(500);
-
-  //  **Tester Present**
-    HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
+  HAL_Delay(50);
 
   //  **PIDs supported(81-A0)**
   data[2] = 0x80;
   HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
-
-  HAL_Delay(500);
-
-  //  **Tester Present**
-    HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
+  HAL_Delay(50);
 
   //  **PIDs supported(A1-C0)**
   data[2] = 0xA0;
   HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
-
-  HAL_Delay(500);
-
-  //  **Tester Present**
-    HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
+  HAL_Delay(50);
 
   //  **PIDs supported(C1-E0)**
   data[2] = 0xC0;
   HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
 
-  HAL_Delay(500);
-
-  //  **Tester Present**
-    HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
-
-//  **Print State**
-//  uint8_t* smth = getState();
-//  CDC_Transmit_FS(smth, strlen((char*)smth));
-
-//  uint8_t smth[6] = "sniff ";
-//  uint16_t smth_len = 6;
-
   while (1)
   {
-	  //  **Tester Present**
-//	  HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
-
-//	  HAL_Delay(25);
-
-	  //  **PIDs supported**
-//	  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
-
-//	  HAL_Delay(25);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-//	  CAN_RxHeaderTypeDef rxPHead;
-//	  HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO0, &rxPHead, data);
-//	  CDC_Transmit_FS(data, 8);
-//	  smth = getState();
 
-//	  CDC_Transmit_FS(smth, strlen((char*)smth));
-
-//	  HAL_Delay(100);
-
-//	  HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO1, &rxPHead, data);
-//	  CDC_Transmit_FS(data, rxPHead.DLC);
-
-
-//	  while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_RESET){
-//		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
-//	  }
-//	  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
-//
-//	  HAL_CAN_AddTxMessage(&hcan1, &pHead, (uint8_t*)"HEWWO", &mailbox);
-//
-//	  smth = getState();
-//
-//	  CDC_Transmit_FS(smth, strlen((char*)smth));
-//	  CDC_Transmit_FS(smth, smth_len);
   }
   /* USER CODE END 3 */
 }
