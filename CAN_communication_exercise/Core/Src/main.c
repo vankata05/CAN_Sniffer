@@ -54,6 +54,7 @@ CAN_HandleTypeDef hcan1;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN1_Init(uint32_t Prescaler, uint32_t Mode);
+static void CAN1_Filter_Config(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -152,6 +153,7 @@ int main(void)
 //			  MX_CAN1_Init(PRE[i], CAN_MODE_NORMAL);
 			  hcan1.Init.Mode = CAN_MODE_NORMAL;
 			  HAL_CAN_Init(&hcan1);
+			  CAN1_Filter_Config();
 			  HAL_CAN_Start(&hcan1);
 
 		  }
@@ -269,6 +271,29 @@ void SystemClock_Config(void)
   * @retval None
   */
 
+static void CAN1_Filter_Config(void){
+	//  **Configure filters**
+  CAN_FilterTypeDef filters = {0};
+
+  filters.FilterActivation = ENABLE;
+  filters.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+  filters.FilterBank = 0;
+  filters.FilterMode = CAN_FILTERMODE_IDMASK;
+  filters.FilterScale = CAN_FILTERSCALE_32BIT;
+  filters.FilterIdHigh = 0x7E8 << 5;
+  filters.FilterIdLow = 0;
+  filters.FilterMaskIdHigh = 0x7fd << 5;
+  filters.FilterMaskIdLow = 0;
+
+  //  memset(&filters, 0, sizeof(CAN_FilterTypeDef));
+
+  if (HAL_CAN_ConfigFilter(&hcan1, &filters) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+}
+
 static void MX_CAN1_Init(uint32_t Prescaler, uint32_t Mode)
 {
 
@@ -298,26 +323,10 @@ static void MX_CAN1_Init(uint32_t Prescaler, uint32_t Mode)
   /* USER CODE BEGIN CAN1_Init 2 */
   HAL_CAN_ActivateNotification(&hcan1, 0xFFFFFFFFU);
 
-//  **Configure filters**
   CAN_FilterTypeDef filters = {0};
+  filters.FilterActivation = 1;
 
-
-  filters.FilterActivation = ENABLE;
-  filters.FilterFIFOAssignment = CAN_FILTER_FIFO0;
-  filters.FilterBank = 0;
-  filters.FilterMode = CAN_FILTERMODE_IDMASK;
-  filters.FilterScale = CAN_FILTERSCALE_32BIT;
-  filters.FilterIdHigh = 0x7E8 << 5;
-  filters.FilterIdLow = 0;
-  filters.FilterMaskIdHigh = 0x7fd << 5;
-  filters.FilterMaskIdLow = 0;
-
-//  memset(&filters, 0, sizeof(CAN_FilterTypeDef));
-
-  if (HAL_CAN_ConfigFilter(&hcan1, &filters) != HAL_OK)
-  {
-    Error_Handler();
-  }
+  HAL_CAN_ConfigFilter(&hcan1, &filters);
   /* USER CODE END CAN1_Init 2 */
 }
 
