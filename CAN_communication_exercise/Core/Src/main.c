@@ -55,6 +55,9 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN1_Init(uint32_t Prescaler, uint32_t Mode);
 static void CAN1_Filter_Config(void);
+static void Capture_PID_Snapshot(void);
+static void Auto_Baudrate_Setup(uint32_t PRE[]);
+static void HODL_Till_BTN(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -116,18 +119,37 @@ int main(void)
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
 
+  HODL_Till_BTN();
+
+  uint32_t PRE[] = {42, 210, 84, 21};
+
+  Auto_Baudrate_Setup(PRE);
+
+  Capture_PID_Snapshot();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
+  while (1)
+  {
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+
+  }
+  /* USER CODE END 3 */
+}
+
+static void HODL_Till_BTN(void){
   while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_RESET){
 	  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
   }
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
+}
 
-  uint32_t PRE[4] = {42, 210, 84, 21};
-
+static void Auto_Baudrate_Setup(uint32_t PRE[]){
   uint8_t i;
   for(i = 0; i < 5; i++){
 	  if(IRQRX1 == 0 && IRQRX0 == 0){
@@ -164,35 +186,27 @@ int main(void)
 	  CDC_Transmit_FS((uint8_t*)"ERROR DETECTING BAUDRATE", 24);
 	  Error_Handler();
   }
-
-//    **Transmit**
-//  **PIDs Supported**
-  uint32_t mailbox;
-  CAN_TxHeaderTypeDef pHead;
-  pHead.StdId = 0x7DF;
-  pHead.IDE = CAN_ID_STD;
-  pHead.RTR = CAN_RTR_DATA;
-  pHead.DLC = 8;
-
-  uint8_t data[] = {0x02, 0x01, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA};
-  uint8_t PIDs[] = {0x01, 0x04, 0x05, 0x0b, 0x0c, 0x0d, 0x0f, 0x10, 0x1c, 0x1e, 0x1f, 0x20, 0x21, 0x24, 0x2f, 0x30, 0x31, 0x33, 0x40, 0x41, 0x42, 0x49, 0x4a, 0x4d, 0x4e};
-
-  for(uint8_t pid = 0; pid < 25; pid++){
-	  data[2] = PIDs[pid];
-	  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
-	  HAL_Delay(100);
-  }
-
-  while (1)
-  {
-    /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
-
-  }
-  /* USER CODE END 3 */
 }
 
+static void Capture_PID_Snapshot(void){
+	//    **Transmit**
+	//  **PIDs Supported**
+	  uint32_t mailbox;
+	  CAN_TxHeaderTypeDef pHead;
+	  pHead.StdId = 0x7DF;
+	  pHead.IDE = CAN_ID_STD;
+	  pHead.RTR = CAN_RTR_DATA;
+	  pHead.DLC = 8;
+
+	  uint8_t data[] = {0x02, 0x01, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA};
+	  uint8_t PIDs[] = {0x01, 0x04, 0x05, 0x0b, 0x0c, 0x0d, 0x0f, 0x10, 0x1c, 0x1e, 0x1f, 0x20, 0x21, 0x24, 0x2f, 0x30, 0x31, 0x33, 0x40, 0x41, 0x42, 0x49, 0x4a, 0x4d, 0x4e};
+
+	  for(uint8_t pid = 0; pid < 25; pid++){
+		  data[2] = PIDs[pid];
+		  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
+		  HAL_Delay(100);
+	  }
+}
 
 /**
   * @brief System Clock Configuration
