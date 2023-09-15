@@ -174,40 +174,14 @@ int main(void)
   pHead.RTR = CAN_RTR_DATA;
   pHead.DLC = 8;
 
-  uint8_t data[] = {0x02, 0x01, 0x00, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA};
+  uint8_t data[] = {0x02, 0x01, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA};
+  uint8_t PIDs[] = {0x01, 0x04, 0x05, 0x0b, 0x0c, 0x0d, 0x0f, 0x10, 0x1c, 0x1e, 0x1f, 0x20, 0x21, 0x24, 0x2f, 0x30, 0x31, 0x33, 0x40, 0x41, 0x42, 0x49, 0x4a, 0x4d, 0x4e};
 
-  //  **PIDs supported(01-20)**
-  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
-  HAL_Delay(50);
-
-  //  **PIDs supported(21-40)**
-  data[2] = 0x20;
-  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
-  HAL_Delay(50);
-
-  //  **PIDs supported(41-60)**
-  data[2] = 0x40;
-  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
-  HAL_Delay(50);
-
-  //  **PIDs supported(61-80)**
-  data[2] = 0x60;
-  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
-  HAL_Delay(50);
-
-  //  **PIDs supported(81-A0)**
-  data[2] = 0x80;
-  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
-  HAL_Delay(50);
-
-  //  **PIDs supported(A1-C0)**
-  data[2] = 0xA0;
-  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
-  HAL_Delay(50);
-
-  //  **PIDs supported(C1-E0)**
-  data[2] = 0xC0;
-  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
+  for(uint8_t pid = 0; pid < 25; pid++){
+	  data[2] = PIDs[pid];
+	  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
+	  HAL_Delay(100);
+  }
 
   while (1)
   {
