@@ -32,6 +32,7 @@ volatile uint8_t IRQRX0 = 0;
 volatile uint8_t IRQRX1 = 0;
 volatile uint8_t IRQTX = 0;
 volatile uint8_t BDTKTD = 0;
+volatile uint8_t TSLR = 0;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -127,6 +128,7 @@ int main(void)
   Auto_Baudrate_Setup(PRE);
 
   Capture_PID_Snapshot();
+  TSLR = HAL_GetTick();
 
   /* USER CODE END 2 */
 
@@ -141,6 +143,11 @@ int main(void)
 	  if(IRQTX == 1){
 		  Capture_PID_Snapshot();
 		  IRQTX = 0;
+		  TSLR = HAL_GetTick();
+	  }else if(HAL_GetTick() - TSLR > 5000){
+		  //**Retransmit request in case there was no response**
+		  Capture_PID_Snapshot();
+		  TSLR = HAL_GetTick();
 	  }
   }
   /* USER CODE END 3 */
