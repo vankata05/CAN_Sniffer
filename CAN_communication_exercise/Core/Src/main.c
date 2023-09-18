@@ -137,7 +137,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
+	  Capture_PID_Snapshot();
   }
   /* USER CODE END 3 */
 }
@@ -169,15 +169,15 @@ static void Auto_Baudrate_Setup(uint32_t PRE[]){
 	  }else{
 		  if(IRQRX1 == 1 || IRQRX0 == 1){
 			  char str[42];
-			  sprintf(str, "BAUDRATE DETECTED WITH PRESCALER OF %ld\n", PRE[i-1]);
+			  sprintf(str, "BAUDRATE DETECTED WITH PRESCALER OF %ld\n", PRE[i]);
 			  CDC_Transmit_FS((uint8_t*)str, strlen(str));
 			  HAL_CAN_Stop(&hcan1);
 //			  MX_CAN1_Init(PRE[i], CAN_MODE_NORMAL);
 			  hcan1.Init.Mode = CAN_MODE_NORMAL;
 			  HAL_CAN_Init(&hcan1);
-			  CAN1_Filter_Config();
+//			  CAN1_Filter_Config();
 			  HAL_CAN_Start(&hcan1);
-
+			  break;
 		  }
 	  }
   }
@@ -198,14 +198,85 @@ static void Capture_PID_Snapshot(void){
 	  pHead.RTR = CAN_RTR_DATA;
 	  pHead.DLC = 8;
 
-	  uint8_t data[] = {0x02, 0x01, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA};
-	  uint8_t PIDs[] = {0x01, 0x04, 0x05, 0x0b, 0x0c, 0x0d, 0x0f, 0x10, 0x1c, 0x1e, 0x1f, 0x20, 0x21, 0x24, 0x2f, 0x30, 0x31, 0x33, 0x40, 0x41, 0x42, 0x49, 0x4a, 0x4d, 0x4e};
+	  uint8_t data[] = {0x02, 0x01, 0x00, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA};
 
-	  for(uint8_t pid = 0; pid < 25; pid++){
-		  data[2] = PIDs[pid];
-		  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
-		  HAL_Delay(100);
-	  }
+	  CAN_TxHeaderTypeDef TPpHead;
+	  TPpHead.StdId = 0x700;
+	  TPpHead.IDE = CAN_ID_STD;
+	  TPpHead.RTR = CAN_RTR_DATA;
+	  TPpHead.DLC = 8;
+
+	  HAL_Delay(10);
+
+	  uint8_t TP_data[] = {0x02, 0x3E, 0x00, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA};
+	//  uint8_t readVin_Req[] = {0x04, 0x22, 0xF1, 0x90, 0x00, 0x00, 0x00, 0x00};
+
+	  HAL_Delay(10);
+
+	//  **Tester Present**
+	  HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
+
+	  //  **PIDs supported(01-20)**
+	  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
+
+	  HAL_Delay(10);
+
+	  //  **Tester Present**
+	    HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
+
+	  //  **PIDs supported(21-40)**
+	  data[2] = 0x20;
+	  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
+
+	  HAL_Delay(10);
+
+	  //  **Tester Present**
+	    HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
+
+	  //  **PIDs supported(41-60)**
+	  data[2] = 0x40;
+	  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
+
+	  HAL_Delay(10);
+
+	  //  **Tester Present**
+	    HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
+
+	  //  **PIDs supported(61-80)**
+	  data[2] = 0x60;
+	  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
+
+	  HAL_Delay(10);
+
+	  //  **Tester Present**
+	    HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
+
+	  //  **PIDs supported(81-A0)**
+	  data[2] = 0x80;
+	  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
+
+	  HAL_Delay(10);
+
+	  //  **Tester Present**
+	    HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
+
+	  //  **PIDs supported(A1-C0)**
+	  data[2] = 0xA0;
+	  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
+
+	  HAL_Delay(10);
+
+	  //  **Tester Present**
+	    HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
+
+	  //  **PIDs supported(C1-E0)**
+	  data[2] = 0xC0;
+	  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
+
+	  HAL_Delay(10);
+
+	  //  **Tester Present**
+	    HAL_CAN_AddTxMessage(&hcan1, &TPpHead, TP_data, &mailbox);
 }
 
 /**

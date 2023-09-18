@@ -64,8 +64,8 @@ all: main-build
 main-build: CAN_communication_exercise.elf secondary-outputs
 
 # Tool invocations
-CAN_communication_exercise.elf CAN_communication_exercise.map: $(OBJS) $(USER_OBJS) C:\Users\IVI6SF\GitRepos\CAN_Sniffer\CAN_communication_exercise\STM32F407VGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "CAN_communication_exercise.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\IVI6SF\GitRepos\CAN_Sniffer\CAN_communication_exercise\STM32F407VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="CAN_communication_exercise.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+CAN_communication_exercise.elf CAN_communication_exercise.map: $(OBJS) $(USER_OBJS) C:\Users\ivan\Documents\CAN_Sniffer\CAN_communication_exercise\STM32F407VGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "CAN_communication_exercise.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\ivan\Documents\CAN_Sniffer\CAN_communication_exercise\STM32F407VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="CAN_communication_exercise.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

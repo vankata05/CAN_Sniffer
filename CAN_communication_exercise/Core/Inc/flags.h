@@ -13,5 +13,9 @@
 extern volatile uint8_t IRQRX0;
 extern volatile uint8_t IRQRX1;
 extern volatile uint8_t IRQTX;
+extern volatile uint8_t BDTKTD;
+
+// Global can1 structure defined as extern
+extern CAN_HandleTypeDef hcan1;
 
 #endif /* SRC_FLAGS_H_ */
