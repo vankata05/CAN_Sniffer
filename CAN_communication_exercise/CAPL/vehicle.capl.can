@@ -1,0 +1,29 @@
+/*@!Encoding:1252*/
+includes
+{
+  
+}
+
+variables
+{
+  message 0x7e8 diagnostic_response_msg;
+}
+
+
+on message *
+{
+  if (this.id == 0x7df)
+  {
+    write("Diagnostic request received!");
+    diagnostic_response_msg.dlc = 8;
+    diagnostic_response_msg.byte(0) = 0x06;
+    diagnostic_response_msg.byte(1) = 0x41;
+    diagnostic_response_msg.byte(2) = 0x00;
+    diagnostic_response_msg.byte(3) = 0x98;
+    diagnostic_response_msg.byte(4) = 0x3B;
+    diagnostic_response_msg.byte(5) = 0x00;
+    diagnostic_response_msg.byte(6) = 0x17;
+    diagnostic_response_msg.byte(7) = 0xAA;
+    output(diagnostic_response_msg);
+  }
+}
