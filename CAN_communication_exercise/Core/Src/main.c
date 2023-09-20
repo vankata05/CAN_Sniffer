@@ -28,11 +28,14 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-volatile uint8_t IRQRX0 = 0;
-volatile uint8_t IRQRX1 = 0;
-volatile uint8_t IRQTX = 0;
-volatile uint8_t BDTKTD = 0;
-volatile uint8_t TSLR = 0;
+
+typedef struct {
+	uint8_t PID;
+	uint32_t Scale;
+	uint8_t Offset;
+	uint32_t LastVal;
+}Parameters;
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -50,6 +53,29 @@ CAN_HandleTypeDef hcan1;
 
 /* USER CODE BEGIN PV */
 
+volatile uint8_t IRQRX0 = 0;	//Interrupt CAN RX0
+volatile uint8_t IRQRX1 = 0;	//Interrupt CAN RX1
+volatile uint8_t IRQTX = 0;		//Interrupt CAN TX
+volatile uint8_t BDTKTD = 0;	//Baudrate Detected
+volatile uint8_t TSLR = 0; 		//Tick Since Last Response
+volatile uint8_t LPLD[8] = {0}; //Last Payload
+
+//Prescalers for CAN baudrate 50k/125k/250k/500k
+uint32_t PRE[] = {210, 84, 42, 21};
+
+Parameters PIDs[] = {
+	{0x04, 1/2.55, 0, 0},	//	Calculated engine load
+	{0x05, 1, -40, 0},		//	Engine coolant temperature
+	{0x0B, 1, 0, 0},		//	Intake manifold absolute pressure
+	{0x0C, 1/4, 0, 0},		//	Engine speed
+	{0x0D, 1, 0, 0},		//	Vehicle speed
+	{0x0F, 1, -40, 0},		//	Intake air temperature
+	{0x21, 1, 0, 0},		//	Distance traveled with MIL on
+	{0x2F, 1/2.55, 0, 0},	//	Fuel tank level input
+	{0x42, 1000, 0, 0},		//	Control module voltage
+	{0x49, 1/2.55, 0, 0}	//	Accelerator pedal position D
+};
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -57,7 +83,8 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN1_Init(uint32_t Prescaler, uint32_t Mode);
 static void CAN1_Filter_Config(void);
-static void Capture_PID_Snapshot(void);
+static void Capture_PID_(uint8_t PID);
+static uint32_t Capture_PID(Parameters* PID);
 static void Auto_Baudrate_Setup(uint32_t PRE[]);
 static void HODL_Till_BTN(void);
 /* USER CODE BEGIN PFP */
@@ -123,12 +150,7 @@ int main(void)
 
   HODL_Till_BTN();
 
-  uint32_t PRE[] = {42, 210, 84, 21};
-
   Auto_Baudrate_Setup(PRE);
-
-  Capture_PID_Snapshot();
-  TSLR = HAL_GetTick();
 
   /* USER CODE END 2 */
 
@@ -137,18 +159,12 @@ int main(void)
 
   while (1)
   {
+	  for(int i = 0; i < 10; i++)
+		  Capture_PID(&PIDs[i]);
+	  CDC_Transmit_FS((uint8_t*)PIDs[0].LastVal, 4);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  if(IRQTX == 1){
-		  Capture_PID_Snapshot();
-		  IRQTX = 0;
-		  TSLR = HAL_GetTick();
-	  }else if(HAL_GetTick() - TSLR > 5000){
-		  //**Retransmit request in case there was no response**
-		  Capture_PID_Snapshot();
-		  TSLR = HAL_GetTick();
-	  }
   }
   /* USER CODE END 3 */
 }
@@ -196,9 +212,34 @@ static void Auto_Baudrate_Setup(uint32_t PRE[]){
   }
 }
 
-static void Capture_PID_Snapshot(void){
-	//    **Transmit**
-	//  **PIDs Supported**
+static uint32_t Capture_PID(Parameters* PID){
+	  PID->LastVal = 0;
+
+	  if(IRQTX == 1){
+		  Capture_PID_(PID->PID);
+		  IRQTX = 0;
+		  TSLR = HAL_GetTick();
+	  }
+
+	  while(IRQTX != 1){
+		  if(HAL_GetTick() - TSLR > 5000){
+		  		  //**Retransmit request in case there was no response**
+		  		  Capture_PID_(PID->PID);
+		  		  TSLR = HAL_GetTick();
+		  }
+	  }
+
+	  for(uint8_t i = 3; i < LPLD[0]; i++){
+		  PID->LastVal = (PID->LastVal<<8) + LPLD[i];
+	  }
+
+	  PID->LastVal = (PID->LastVal * PID->Scale) + PID->Offset;
+
+	  return PID->LastVal;
+}
+
+//	**Helper**
+static void Capture_PID_(uint8_t PID){
 	  uint32_t mailbox;
 	  CAN_TxHeaderTypeDef pHead;
 	  pHead.StdId = 0x7DF;
@@ -206,11 +247,8 @@ static void Capture_PID_Snapshot(void){
 	  pHead.RTR = CAN_RTR_DATA;
 	  pHead.DLC = 8;
 
-	  uint8_t data[] = {0x02, 0x01, 0x00, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA};
+	  uint8_t data[] = {0x02, 0x01, PID, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA};
 
-	  HAL_Delay(100);
-
-	  //  **PIDs supported(01-20)**
 	  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
 
 }
