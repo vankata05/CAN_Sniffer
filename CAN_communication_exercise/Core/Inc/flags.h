@@ -19,5 +19,6 @@ extern uint8_t LPLD[8];
 
 // Global can1 structure defined as extern
 extern CAN_HandleTypeDef hcan1;
+extern UART_HandleTypeDef huart5;
 
 #endif /* SRC_FLAGS_H_ */

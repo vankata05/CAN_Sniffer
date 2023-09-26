@@ -38,3 +38,12 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 	//	  CDC_Transmit_FS((uint8_t)rxPHead.StdId, 2);
 	}
 }
+
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+{
+	uint8_t pData[Size];
+
+	HAL_UART_Receive(&huart5, (uint8_t*)pData, Size, 100);
+
+	CDC_Transmit_FS(pData, Size);
+}
