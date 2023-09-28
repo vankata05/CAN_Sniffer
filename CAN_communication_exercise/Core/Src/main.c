@@ -50,7 +50,7 @@ typedef struct {
 
 /* Private variables ---------------------------------------------------------*/
 CAN_HandleTypeDef hcan1;
-UART_HandleTypeDef huart5;
+UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
 
@@ -60,6 +60,8 @@ volatile uint8_t IRQTX = 0;		//Interrupt CAN TX
 volatile uint8_t BDTKTD = 0;	//Baudrate Detected
 volatile uint8_t TSLR = 0; 		//Tick Since Last Response
 volatile uint8_t LPLD[8] = {0}; //Last Payload
+volatile uint8_t MSGR;			//Reading Message
+uint8_t LMSG[64] = {0};          //Last Message
 
 //Prescalers for CAN baudrate 50k/125k/250k/500k
 uint32_t PRE[] = {210, 84, 42, 21};
@@ -88,7 +90,7 @@ static void Capture_PID_(uint8_t PID);
 static uint32_t Capture_PID(Parameters* PID);
 static void Auto_Baudrate_Setup(uint32_t PRE[]);
 static void HODL_Till_BTN(void);
-static void MX_UART5_Init(void);
+static void MX_USART3_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -132,7 +134,8 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+
+	HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -148,7 +151,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USB_DEVICE_Init();
-  MX_UART5_Init();
+  MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 
   HODL_Till_BTN();
@@ -159,14 +162,20 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  uint8_t data[64];
 
   while (1)
   {
 //	  for(int i = 0; i < 10; i++)
 //		  Capture_PID(&PIDs[i]);
 //	  CDC_Transmit_FS((uint8_t*)PIDs[0].LastVal, 4);
-
+//		HAL_UART_Receive(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size, uint32_t Timeout)
 //	  HAL_UART_Transmit(&huart5, (uint8_t*)"HEWWO", 5, 100);
+//	  /*
+	  HAL_UART_Receive(&huart3, data, 64, 1000);
+//	  strcat(data, "\n----------");
+	  CDC_Transmit_FS(data, 64);
+//	  */
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -368,33 +377,39 @@ static void MX_CAN1_Init(uint32_t Prescaler, uint32_t Mode)
   /* USER CODE END CAN1_Init 2 */
 }
 
-static void MX_UART5_Init(void)
+/**
+  * @brief UART5 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART3_UART_Init(void)
 {
 
-  /* USER CODE BEGIN UART5_Init 0 */
+  /* USER CODE BEGIN USART3_Init 0 */
 
-  /* USER CODE END UART5_Init 0 */
+  /* USER CODE END USART3_Init 0 */
 
-  /* USER CODE BEGIN UART5_Init 1 */
+  /* USER CODE BEGIN USART3_Init 1 */
 
-  /* USER CODE END UART5_Init 1 */
-  huart5.Instance = UART5;
-  huart5.Init.BaudRate = 9600;
-  huart5.Init.WordLength = UART_WORDLENGTH_8B;
-  huart5.Init.StopBits = UART_STOPBITS_1;
-  huart5.Init.Parity = UART_PARITY_NONE;
-  huart5.Init.Mode = UART_MODE_RX;
-  huart5.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart5.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart5) != HAL_OK)
+  /* USER CODE END USART3_Init 1 */
+  huart3.Instance = USART3;
+  huart3.Init.BaudRate = 9600;
+  huart3.Init.WordLength = UART_WORDLENGTH_8B;
+  huart3.Init.StopBits = UART_STOPBITS_1;
+  huart3.Init.Parity = UART_PARITY_NONE;
+  huart3.Init.Mode = UART_MODE_TX_RX;
+  huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart3) != HAL_OK)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN UART5_Init 2 */
+  /* USER CODE BEGIN USART3_Init 2 */
 
-  /* USER CODE END UART5_Init 2 */
+  /* USER CODE END USART3_Init 2 */
 
 }
+
 
 
 /**
