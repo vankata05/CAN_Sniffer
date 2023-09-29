@@ -60,8 +60,7 @@ volatile uint8_t IRQTX = 0;		//Interrupt CAN TX
 volatile uint8_t BDTKTD = 0;	//Baudrate Detected
 volatile uint8_t TSLR = 0; 		//Tick Since Last Response
 volatile uint8_t LPLD[8] = {0}; //Last Payload
-volatile uint8_t MSGR;			//Reading Message
-uint8_t LMSG[64] = {0};          //Last Message
+volatile uint8_t MSGR = 0;			//Reading Message
 
 //Prescalers for CAN baudrate 50k/125k/250k/500k
 uint32_t PRE[] = {210, 84, 42, 21};
@@ -91,6 +90,8 @@ static uint32_t Capture_PID(Parameters* PID);
 static void Auto_Baudrate_Setup(uint32_t PRE[]);
 static void HODL_Till_BTN(void);
 static void MX_USART3_UART_Init(void);
+void HAL_UART_Receive_STR(UART_HandleTypeDef *huart, uint8_t *pData, uint8_t Size, uint32_t Timeout);
+static uint8_t* GNSS_Get_Coords(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -163,6 +164,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   uint8_t data[64];
+//  uint8_t tick = HAL_GetTick();
 
   while (1)
   {
@@ -172,9 +174,16 @@ int main(void)
 //		HAL_UART_Receive(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size, uint32_t Timeout)
 //	  HAL_UART_Transmit(&huart5, (uint8_t*)"HEWWO", 5, 100);
 //	  /*
-	  HAL_UART_Receive(&huart3, data, 64, 1000);
+	  HAL_UART_Receive_STR(&huart3, data, 64, 50);
 //	  strcat(data, "\n----------");
-	  CDC_Transmit_FS(data, 64);
+//	  GNGLL
+	  if(data[1] == 'G' && data[2] == 'N' && data[4] == 'L' && data[5] == 'L'){
+		  for(int i = 0; i < 64 && data[i] != '\0'; i++){
+			  data[i] = data[i+6];
+		  }
+		  CDC_Transmit_FS(data, 64);
+	  }
+
 //	  */
     /* USER CODE END WHILE */
 
@@ -265,6 +274,19 @@ static void Capture_PID_(uint8_t PID){
 
 	  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
 
+}
+
+static uint8_t* GNSS_Get_Coords(void){
+
+}
+
+void HAL_UART_Receive_STR(UART_HandleTypeDef *huart, uint8_t *pData, uint8_t Size, uint32_t Timeout){
+	memset(pData, 0, Size);
+	uint8_t buff[2] = {0};
+	for(uint8_t i = Size; buff[0] != '\n' && Size >= 0; i--){
+		HAL_UART_Receive(&huart3, buff, 1, Timeout);
+		pData[Size - i] = buff[0];
+	}
 }
 
 /**
