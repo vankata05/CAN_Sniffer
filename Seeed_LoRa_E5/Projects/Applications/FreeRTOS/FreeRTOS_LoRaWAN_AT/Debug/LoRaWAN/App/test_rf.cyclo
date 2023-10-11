@@ -1,0 +1,13 @@
+../LoRaWAN/App/test_rf.c:141:9:TST_TxTone	2
+../LoRaWAN/App/test_rf.c:165:9:TST_RxRssi	4
+../LoRaWAN/App/test_rf.c:226:10:TST_set_config	1
+../LoRaWAN/App/test_rf.c:239:9:TST_get_config	1
+../LoRaWAN/App/test_rf.c:251:9:TST_stop	1
+../LoRaWAN/App/test_rf.c:267:9:TST_TX_Start	10
+../LoRaWAN/App/test_rf.c:377:9:TST_RX_Start	14
+../LoRaWAN/App/test_rf.c:511:6:OnTxDone	1
+../LoRaWAN/App/test_rf.c:524:6:OnRxDone	1
+../LoRaWAN/App/test_rf.c:540:6:OnTxTimeout	1
+../LoRaWAN/App/test_rf.c:553:6:OnRxTimeout	1
+../LoRaWAN/App/test_rf.c:566:6:OnRxError	1
+../LoRaWAN/App/test_rf.c:579:16:Prbs9_generator	3

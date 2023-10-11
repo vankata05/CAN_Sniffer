@@ -39,22 +39,22 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 	}
 }
 
-void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
-{
-	uint8_t pData[Size];
-
-	HAL_UART_Receive(&huart, (uint8_t*)pData, Size, 100);
-
-	CDC_Transmit_FS(pData, Size);
-}
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-  HAL_UART_Receive_IT(huart, (uint8_t*)data1, 64);
-  CDC_Transmit_FS((uint8_t*)data1, 64);
-}
-
-void RxEventCallback(struct __UART_HandleTypeDef *huart, uint16_t Pos){
-	  HAL_UART_Receive_IT(huart, (uint8_t*)data1, 64);
-	  CDC_Transmit_FS((uint8_t*)data1, 64);
-}
+//void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+//{
+//	uint8_t pData[Size];
+//
+//	HAL_UART_Receive(huart, (uint8_t*)pData, Size, 100);
+//
+//	CDC_Transmit_FS(pData, Size);
+//}
+//
+//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+//{
+//  HAL_UART_Receive_IT(huart, (uint8_t*)data1, 64);
+//  CDC_Transmit_FS((uint8_t*)data1, 64);
+//}
+//
+//void RxEventCallback(struct __UART_HandleTypeDef *huart, uint16_t Pos){
+//	  HAL_UART_Receive_IT(huart, (uint8_t*)data1, 64);
+//	  CDC_Transmit_FS((uint8_t*)data1, 64);
+//}

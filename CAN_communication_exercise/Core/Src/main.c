@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <string.h>
+#include <stdlib.h>
 #include "usbd_cdc_if.h"
 /* USER CODE END Includes */
 
@@ -50,6 +51,7 @@ typedef struct {
 
 /* Private variables ---------------------------------------------------------*/
 CAN_HandleTypeDef hcan1;
+UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
@@ -63,6 +65,8 @@ volatile uint8_t LPLD[8] = {0}; //Last Payload
 volatile uint8_t MSGR = 0;			//Reading Message
 
 //Prescalers for CAN baudrate 50k/125k/250k/500k
+const char digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_-=+/:|.";
+
 uint32_t PRE[] = {210, 84, 42, 21};
 
 Parameters PIDs[] = {
@@ -90,8 +94,10 @@ static uint32_t Capture_PID(Parameters* PID);
 static void Auto_Baudrate_Setup(uint32_t PRE[]);
 static void HODL_Till_BTN(void);
 static void MX_USART3_UART_Init(void);
-void HAL_UART_Receive_STR(UART_HandleTypeDef *huart, uint8_t *pData, uint8_t Size, uint32_t Timeout);
-static uint8_t* GNSS_Get_Coords(void);
+static void MX_USART2_UART_Init(void);
+static void HAL_UART_Receive_STR(UART_HandleTypeDef *huart, uint8_t *pData, uint8_t Size, uint32_t Timeout);
+static void GNSS_Get_Coords(UART_HandleTypeDef *huart, uint8_t* data, uint8_t size, double* Coords);
+static void Rem_Char(uint8_t* data, uint8_t ch);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -153,6 +159,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USB_DEVICE_Init();
   MX_USART3_UART_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
   HODL_Till_BTN();
@@ -163,26 +170,30 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  uint8_t data[64];
 //  uint8_t tick = HAL_GetTick();
+
+  uint8_t data[64] = {0};
+  double coords[2] = {0};
+
+  HAL_UART_Transmit(&huart2, (uint8_t*)"AT+JOIN=1\n", 10, 1000);
+  HAL_Delay(10000);
+  HAL_UART_Transmit(&huart2, (uint8_t*)"AT+JOIN=1\n", 10, 1000);
+  HAL_Delay(10000);
+  HAL_UART_Transmit(&huart2, (uint8_t*)"AT+JOIN=1\n", 10, 1000);
+  HAL_Delay(10000);
+  HAL_UART_Transmit(&huart2, (uint8_t*)"AT+JOIN=1\n", 10, 1000);
+  HAL_Delay(10000);
+
 
   while (1)
   {
+	  GNSS_Get_Coords(&huart3, data, 64, coords);
 //	  for(int i = 0; i < 10; i++)
 //		  Capture_PID(&PIDs[i]);
 //	  CDC_Transmit_FS((uint8_t*)PIDs[0].LastVal, 4);
 //		HAL_UART_Receive(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size, uint32_t Timeout)
 //	  HAL_UART_Transmit(&huart5, (uint8_t*)"HEWWO", 5, 100);
 //	  /*
-	  HAL_UART_Receive_STR(&huart3, data, 64, 50);
-//	  strcat(data, "\n----------");
-//	  GNGLL
-	  if(data[1] == 'G' && data[2] == 'N' && data[4] == 'L' && data[5] == 'L'){
-		  for(int i = 0; i < 64 && data[i] != '\0'; i++){
-			  data[i] = data[i+6];
-		  }
-		  CDC_Transmit_FS(data, 64);
-	  }
 
 //	  */
     /* USER CODE END WHILE */
@@ -276,11 +287,62 @@ static void Capture_PID_(uint8_t PID){
 
 }
 
-static uint8_t* GNSS_Get_Coords(void){
-
+static void Rem_Char(uint8_t* data, uint8_t ch){
+	uint8_t *pr = data, *pw = data;
+    while (*pr) {
+        *pw = *pr++;
+        pw += (*pw != ch);
+    }
+    *pw = '\0';
 }
 
-void HAL_UART_Receive_STR(UART_HandleTypeDef *huart, uint8_t *pData, uint8_t Size, uint32_t Timeout){
+static void GNSS_Get_Coords(UART_HandleTypeDef *huart, uint8_t* data, uint8_t size, double* Coords){
+//	HAL_UART_Receive_STR(huart, data, size, 50);
+	  while(1){
+		  HAL_UART_Receive_STR(huart, data, size, 50);
+//		  strcpy((char*)data, (char*)"$GNGLL,4239.8504,N,02322.3824,E,065205.000,A,A*4A");
+//		  							4240.0922,N,02322.4681,E,06380
+//		                            4240.092202322.4681
+//		                            42400922023224681
+
+//		  Rem_Char(data, '$');
+		  if(data[3] == (uint8_t)'G' && data[4] == (uint8_t)'L' && data[5] == (uint8_t)'L'){
+			  break;
+		  }
+	  }
+
+//	**znam che moje sus strtok, narochno ne e taka**
+	  for(int i = 0; i < size && data[i] != 0; i++){
+		  if(i < 18){
+			  if(i > 8)
+				  data[i] = data[i+11];
+			  else
+				  data[i] = data[i+7];
+		  }else if(i == 18){
+			  data[i] = '\n';
+		  }else{
+			  data[i] = 0;
+		  }
+	  }
+
+	  Rem_Char(data, '.');
+
+	  uint8_t lat[9] = {0};
+	  memcpy(&lat, data, 8);
+	  lat[8] = 0;
+	  data += 8;
+
+	  char msg[64] = {0};
+
+	  sprintf(msg, "AT+SEND=1:0:%x%x\n", atoi((char*)lat), atoi((char*)data));
+//	  strcat(msg, (uint8_t*)atoi((char*)lat));
+//	  strcat(msg, (uint8_t*)atoi((char*)data));
+
+	  CDC_Transmit_FS((uint8_t*)msg, strlen(msg));
+	  HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), 1000);
+}
+
+static void HAL_UART_Receive_STR(UART_HandleTypeDef *huart, uint8_t *pData, uint8_t Size, uint32_t Timeout){
 	memset(pData, 0, Size);
 	uint8_t buff[2] = {0};
 	for(uint8_t i = Size; buff[0] != '\n' && Size >= 0; i--){
@@ -397,6 +459,39 @@ static void MX_CAN1_Init(uint32_t Prescaler, uint32_t Mode)
 
   HAL_CAN_ConfigFilter(&hcan1, &filters);
   /* USER CODE END CAN1_Init 2 */
+}
+
+/**
+  * @brief USART2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART2_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART2_Init 0 */
+
+  /* USER CODE END USART2_Init 0 */
+
+  /* USER CODE BEGIN USART2_Init 1 */
+
+  /* USER CODE END USART2_Init 1 */
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 115200;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART2_Init 2 */
+
+  /* USER CODE END USART2_Init 2 */
+
 }
 
 /**

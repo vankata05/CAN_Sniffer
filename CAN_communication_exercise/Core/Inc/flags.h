@@ -17,7 +17,6 @@ extern volatile uint8_t BDTKTD;
 extern volatile uint8_t TSLR;
 extern uint8_t LPLD[8];
 extern volatile uint8_t MSGR;			//Reading Message
-extern uint8_t LMSG[64];          //Last Message
 
 // Global can1 structure defined as extern
 extern CAN_HandleTypeDef hcan1;
