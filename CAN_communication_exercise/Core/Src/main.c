@@ -98,6 +98,9 @@ static void MX_USART2_UART_Init(void);
 static void HAL_UART_Receive_STR(UART_HandleTypeDef *huart, uint8_t *pData, uint8_t Size, uint32_t Timeout);
 static void GNSS_Get_Coords(UART_HandleTypeDef *huart, uint8_t* data, uint8_t size, double* Coords);
 static void Rem_Char(uint8_t* data, uint8_t ch);
+static void AT_Join(UART_HandleTypeDef *huart);
+static void AT_Send(UART_HandleTypeDef *huart, uint8_t* data, uint8_t Chnl);
+
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -175,19 +178,12 @@ int main(void)
   uint8_t data[64] = {0};
   double coords[2] = {0};
 
-  HAL_UART_Transmit(&huart2, (uint8_t*)"AT+JOIN=1\n", 10, 1000);
-  HAL_Delay(10000);
-  HAL_UART_Transmit(&huart2, (uint8_t*)"AT+JOIN=1\n", 10, 1000);
-  HAL_Delay(10000);
-  HAL_UART_Transmit(&huart2, (uint8_t*)"AT+JOIN=1\n", 10, 1000);
-  HAL_Delay(10000);
-  HAL_UART_Transmit(&huart2, (uint8_t*)"AT+JOIN=1\n", 10, 1000);
-  HAL_Delay(10000);
-
+  AT_Join(&huart2);
 
   while (1)
   {
 	  GNSS_Get_Coords(&huart3, data, 64, coords);
+	  HAL_Delay(5000);
 //	  for(int i = 0; i < 10; i++)
 //		  Capture_PID(&PIDs[i]);
 //	  CDC_Transmit_FS((uint8_t*)PIDs[0].LastVal, 4);
@@ -299,14 +295,15 @@ static void Rem_Char(uint8_t* data, uint8_t ch){
 static void GNSS_Get_Coords(UART_HandleTypeDef *huart, uint8_t* data, uint8_t size, double* Coords){
 //	HAL_UART_Receive_STR(huart, data, size, 50);
 	  while(1){
-		  HAL_UART_Receive_STR(huart, data, size, 50);
-//		  strcpy((char*)data, (char*)"$GNGLL,4239.8504,N,02322.3824,E,065205.000,A,A*4A");
+//		  HAL_UART_Receive_STR(huart, data, size, 50);
+		  strcpy((char*)data, (char*)"$GNGLL,4239.8504,N,02322.3824,E,065205.000,A,A*4A");
 //		  							4240.0922,N,02322.4681,E,06380
 //		                            4240.092202322.4681
 //		                            42400922023224681
 
 //		  Rem_Char(data, '$');
-		  if(data[3] == (uint8_t)'G' && data[4] == (uint8_t)'L' && data[5] == (uint8_t)'L'){
+		  break;
+		  if(data[3] == (uint8_t)'G' && data[2] == (uint8_t)'N' && data[3] == (uint8_t)'G' && data[4] == (uint8_t)'L' && data[5] == (uint8_t)'L'){
 			  break;
 		  }
 	  }
@@ -327,28 +324,55 @@ static void GNSS_Get_Coords(UART_HandleTypeDef *huart, uint8_t* data, uint8_t si
 
 	  Rem_Char(data, '.');
 
-	  uint8_t lat[9] = {0};
-	  memcpy(&lat, data, 8);
-	  lat[8] = 0;
-	  data += 8;
+//	  uint8_t lat[9] = {0};
+//	  memcpy(&lat, data, 8);
+//	  lat[8] = 0;
+//	  data += 8;
 
-	  char msg[64] = {0};
-
-	  sprintf(msg, "AT+SEND=1:0:%x%x\n", atoi((char*)lat), atoi((char*)data));
+//	  sprintf(msg, "AT+SEND=1:0:%x%x\n", atoi((char*)lat), atoi((char*)data));
 //	  strcat(msg, (uint8_t*)atoi((char*)lat));
 //	  strcat(msg, (uint8_t*)atoi((char*)data));
 
-	  CDC_Transmit_FS((uint8_t*)msg, strlen(msg));
-	  HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), 1000);
+//	  CDC_Transmit_FS((uint8_t*)msg, strlen(msg));
+//	  HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), 1000);
+
+	  AT_Send(&huart2, data, 1);
+
 }
 
 static void HAL_UART_Receive_STR(UART_HandleTypeDef *huart, uint8_t *pData, uint8_t Size, uint32_t Timeout){
 	memset(pData, 0, Size);
 	uint8_t buff[2] = {0};
 	for(uint8_t i = Size; buff[0] != '\n' && Size >= 0; i--){
-		HAL_UART_Receive(&huart3, buff, 1, Timeout);
+		HAL_UART_Receive(huart, buff, 1, Timeout);
 		pData[Size - i] = buff[0];
 	}
+}
+
+static void AT_Send(UART_HandleTypeDef *huart, uint8_t* data, uint8_t Chnl){
+	uint8_t msg[64] = {0};
+
+    uint8_t lat[9] = {0};
+    memcpy(&lat, data, 8);
+    lat[8] = 0;
+    data += 8;
+
+	sprintf((char*)msg, "AT+SEND=%d:0:%x%x\n", Chnl, atoi((char*)lat), atoi((char*)data));
+	HAL_UART_Transmit(huart, msg, strlen((char*)msg), 1000);
+}
+
+static void AT_Join(UART_HandleTypeDef *huart){
+	uint8_t msg[64] = {0};
+	uint32_t tick = HAL_GetTick();
+	HAL_UART_Transmit(huart, (uint8_t*)"AT+JOIN=1\n", 10, 1000);
+	while(strstr((char*) msg, "JOINED") == NULL){
+		if((HAL_GetTick() - tick) > 10000 || strstr((char*) msg, "FAILED") != NULL){
+			tick = HAL_GetTick();
+			HAL_UART_Transmit(huart, (uint8_t*)"AT+JOIN=1\n", 10, 1000);
+		}
+		HAL_UART_Receive_STR(huart, msg, 64, 50);
+	}
+
 }
 
 /**
