@@ -1,4 +1,2 @@
 # Exclude se-identify.h in the specified path
-./Seeed_LoRa_E5/Projects/Applications/FreeRTOS/FreeRTOS_LoRaWAN_AT/LoRaWAN/App/se-identify.h
-./Seeed_LoRa_E5/Projects/Applications/FreeRTOS/FreeRTOS_LoRaWAN_AT/LoRaWAN/
-./Seeed_LoRa_E5/Projects/Applications/FreeRTOS/FreeRTOS_LoRaWAN_AT/Debug
+Seeed_LoRa_E5/Projects/Applications/FreeRTOS/FreeRTOS_LoRaWAN_AT/LoRaWAN/App/se-identity.h

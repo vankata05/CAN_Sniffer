@@ -295,15 +295,15 @@ static void Rem_Char(uint8_t* data, uint8_t ch){
 static void GNSS_Get_Coords(UART_HandleTypeDef *huart, uint8_t* data, uint8_t size, double* Coords){
 //	HAL_UART_Receive_STR(huart, data, size, 50);
 	  while(1){
-//		  HAL_UART_Receive_STR(huart, data, size, 50);
-		  strcpy((char*)data, (char*)"$GNGLL,4239.8504,N,02322.3824,E,065205.000,A,A*4A");
+		  HAL_UART_Receive_STR(huart, data, size, 50);
+//		  strcpy((char*)data, (char*)"$GNGLL,4239.8504,N,02322.3824,E,065205.000,A,A*4A");
 //		  							4240.0922,N,02322.4681,E,06380
 //		                            4240.092202322.4681
 //		                            42400922023224681
 
-//		  Rem_Char(data, '$');
-		  break;
-		  if(data[3] == (uint8_t)'G' && data[2] == (uint8_t)'N' && data[3] == (uint8_t)'G' && data[4] == (uint8_t)'L' && data[5] == (uint8_t)'L'){
+		  Rem_Char(data, '$');
+//		  break;
+		  if(data[0] == (uint8_t)'G' && data[1] == (uint8_t)'N' && data[2] == (uint8_t)'G' && data[3] == (uint8_t)'L' && data[4] == (uint8_t)'L'){
 			  break;
 		  }
 	  }
@@ -362,17 +362,29 @@ static void AT_Send(UART_HandleTypeDef *huart, uint8_t* data, uint8_t Chnl){
 }
 
 static void AT_Join(UART_HandleTypeDef *huart){
+	//Reset teh LoRa E5 module
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_RESET);
+	HAL_Delay(200);
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_SET);
+
+	HAL_Delay(100);
+
+	//Start JOIN
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
 	uint8_t msg[64] = {0};
 	uint32_t tick = HAL_GetTick();
 	HAL_UART_Transmit(huart, (uint8_t*)"AT+JOIN=1\n", 10, 1000);
 	while(strstr((char*) msg, "JOINED") == NULL){
-		if((HAL_GetTick() - tick) > 10000 || strstr((char*) msg, "FAILED") != NULL){
+		if(HAL_GetTick() - tick >= 10000 || strstr((char*) msg, "FAILED") != NULL){
 			tick = HAL_GetTick();
 			HAL_UART_Transmit(huart, (uint8_t*)"AT+JOIN=1\n", 10, 1000);
 		}
 		HAL_UART_Receive_STR(huart, msg, 64, 50);
 	}
-
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
 }
 
 /**
@@ -570,7 +582,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15|GPIO_PIN_11, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : PA0 */
   GPIO_InitStruct.Pin = GPIO_PIN_0;
@@ -586,6 +598,16 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
+
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_SET);
+
+  /*Configure GPIO pins : PD11 */
+  GPIO_InitStruct.Pin = GPIO_PIN_11;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
 /* USER CODE END MX_GPIO_Init_2 */
 }
 
