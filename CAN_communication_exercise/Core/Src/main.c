@@ -183,7 +183,7 @@ int main(void)
   while (1)
   {
 	  GNSS_Get_Coords(&huart3, data, 64, coords);
-	  HAL_Delay(5000);
+	  HAL_Delay(10000);
 //	  for(int i = 0; i < 10; i++)
 //		  Capture_PID(&PIDs[i]);
 //	  CDC_Transmit_FS((uint8_t*)PIDs[0].LastVal, 4);
@@ -293,6 +293,9 @@ static void Rem_Char(uint8_t* data, uint8_t ch){
 }
 
 static void GNSS_Get_Coords(UART_HandleTypeDef *huart, uint8_t* data, uint8_t size, double* Coords){
+
+	HAL_UART_Transmit(huart, (uint8_t*)"&PMTK314,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*F9\r\n", strlen((char*)"&PMTK314,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*F9\r\n"), 1000);
+
 //	HAL_UART_Receive_STR(huart, data, size, 50);
 	  while(1){
 		  HAL_UART_Receive_STR(huart, data, size, 50);
@@ -301,9 +304,9 @@ static void GNSS_Get_Coords(UART_HandleTypeDef *huart, uint8_t* data, uint8_t si
 //		                            4240.092202322.4681
 //		                            42400922023224681
 
-		  Rem_Char(data, '$');
+//		  Rem_Char(data, '$');
 //		  break;
-		  if(data[0] == (uint8_t)'G' && data[1] == (uint8_t)'N' && data[2] == (uint8_t)'G' && data[3] == (uint8_t)'L' && data[4] == (uint8_t)'L'){
+		  if(data[1] == (uint8_t)'G' && data[2] == (uint8_t)'N' && data[3] == (uint8_t)'G' && data[4] == (uint8_t)'L' && data[5] == (uint8_t)'L'){
 			  break;
 		  }
 	  }
