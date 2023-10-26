@@ -25,21 +25,6 @@ C_DEPS :=
 SUBDIRS := \
 Core/Src \
 Core/Startup \
-Drivers/BSP \
-Drivers/STM32WLxx_HAL_Driver \
 LoRaWAN/App \
 LoRaWAN/Target \
-Middlewares/FreeRTOS/CMSIS_RTOS \
-Middlewares/FreeRTOS \
-Middlewares/FreeRTOS/prortable/GCC/ARM_CM3 \
-Middlewares/FreeRTOS/prortable/MemMang \
-Middlewares/LoRaWAN/Crypto \
-Middlewares/LoRaWAN/LmHandler \
-Middlewares/LoRaWAN/LmHandler/Packages \
-Middlewares/LoRaWAN/Mac \
-Middlewares/LoRaWAN/Mac/Region \
-Middlewares/LoRaWAN/Utilities \
-Middlewares/SubGHz_Phy/stm32_radio_driver \
-Middlewares/littlefs \
-Utilities \
 

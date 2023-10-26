@@ -9,23 +9,8 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include Utilities/subdir.mk
--include Middlewares/littlefs/subdir.mk
--include Middlewares/SubGHz_Phy/stm32_radio_driver/subdir.mk
--include Middlewares/LoRaWAN/Utilities/subdir.mk
--include Middlewares/LoRaWAN/Mac/Region/subdir.mk
--include Middlewares/LoRaWAN/Mac/subdir.mk
--include Middlewares/LoRaWAN/LmHandler/Packages/subdir.mk
--include Middlewares/LoRaWAN/LmHandler/subdir.mk
--include Middlewares/LoRaWAN/Crypto/subdir.mk
--include Middlewares/FreeRTOS/prortable/MemMang/subdir.mk
--include Middlewares/FreeRTOS/prortable/GCC/ARM_CM3/subdir.mk
--include Middlewares/FreeRTOS/CMSIS_RTOS/subdir.mk
--include Middlewares/FreeRTOS/subdir.mk
 -include LoRaWAN/Target/subdir.mk
 -include LoRaWAN/App/subdir.mk
--include Drivers/STM32WLxx_HAL_Driver/subdir.mk
--include Drivers/BSP/subdir.mk
 -include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk
 -include objects.mk
