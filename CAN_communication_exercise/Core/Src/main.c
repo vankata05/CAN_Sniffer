@@ -229,6 +229,7 @@ int main(void)
   /* USER CODE END 3 */
 }
 
+
 static void HODL_Till_BTN(void){
   while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_RESET){
 	  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
