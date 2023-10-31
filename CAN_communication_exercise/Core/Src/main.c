@@ -26,20 +26,13 @@
 #include <stdlib.h>
 #include <math.h>
 #include "usbd_cdc_if.h"
+#include "GNSS.h"
+#include "OBDII.h"
+#include "LoRa.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
-typedef struct {
-	uint8_t PID;
-	uint32_t Scale;
-	uint8_t Offset;
-	uint32_t LastVal;
-}Parameters;
-
-#define MSG "PMTK314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
-#define MSG2 "PMTK458"
 
 /* USER CODE END PTD */
 
@@ -50,6 +43,21 @@ typedef struct {
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
+
+uint32_t PRE[] = {210, 84, 42, 21};
+
+Parameters PIDs[] = {
+	{0x04, 1/2.55, 0, 0},	//	Calculated engine load
+	{0x05, 1, -40, 0},		//	Engine coolant temperature
+	{0x0B, 1, 0, 0},		//	Intake manifold absolute pressure
+	{0x0C, 1/4, 0, 0},		//	Engine speed
+	{0x0D, 1, 0, 0},		//	Vehicle speed
+	{0x0F, 1, -40, 0},		//	Intake air temperature
+	{0x21, 1, 0, 0},		//	Distance traveled with MIL on
+	{0x2F, 1/2.55, 0, 0},	//	Fuel tank level input
+	{0x42, 1000, 0, 0},		//	Control module voltage
+	{0x49, 1/2.55, 0, 0}	//	Accelerator pedal position D
+};
 
 /* USER CODE END PM */
 
@@ -68,73 +76,19 @@ volatile uint8_t TSLR = 0; 		//Tick Since Last Response
 volatile uint8_t LPLD[8] = {0}; //Last Payload
 volatile uint8_t MSGR = 0;			//Reading Message
 
-//Prescalers for CAN baudrate 50k/125k/250k/500k
-const char digits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_-=+/:|.";
-
-uint32_t PRE[] = {210, 84, 42, 21};
-
-Parameters PIDs[] = {
-	{0x04, 1/2.55, 0, 0},	//	Calculated engine load
-	{0x05, 1, -40, 0},		//	Engine coolant temperature
-	{0x0B, 1, 0, 0},		//	Intake manifold absolute pressure
-	{0x0C, 1/4, 0, 0},		//	Engine speed
-	{0x0D, 1, 0, 0},		//	Vehicle speed
-	{0x0F, 1, -40, 0},		//	Intake air temperature
-	{0x21, 1, 0, 0},		//	Distance traveled with MIL on
-	{0x2F, 1/2.55, 0, 0},	//	Fuel tank level input
-	{0x42, 1000, 0, 0},		//	Control module voltage
-	{0x49, 1/2.55, 0, 0}	//	Accelerator pedal position D
-};
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void GNSS_Transmit(UART_HandleTypeDef *huart, uint8_t* msg);
-static void MX_CAN1_Init(uint32_t Prescaler, uint32_t Mode);
-static void CAN1_Filter_Config(void);
-static void Capture_PID_(uint8_t PID);
-static uint32_t Capture_PID(Parameters* PID);
-static void Auto_Baudrate_Setup(uint32_t PRE[]);
 static void HODL_Till_BTN(void);
 static void MX_USART3_UART_Init(void);
 static void MX_USART2_UART_Init(void);
-static void HAL_UART_Receive_STR(UART_HandleTypeDef *huart, uint8_t *pData, uint8_t Size, uint32_t Timeout);
-static void GNSS_Get_Coords(UART_HandleTypeDef *huart, uint8_t size, uint32_t* lat, uint32_t* lon);
-static void Rem_Char(uint8_t* data, uint8_t ch);
-static void AT_Join(UART_HandleTypeDef *huart);
-static void AT_Send(UART_HandleTypeDef *huart, uint8_t* data, uint8_t Chnl);
-uint8_t CRC_(const uint8_t* str);
 
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-uint8_t* getState(){
-	  switch(HAL_CAN_GetState(&hcan1)){
-	  	  case 0x00U:
-	  		  return (uint8_t*)"HAL_CAN_STATE_RESET\n";
-	  		  break;
-	  	  case 0x01U:
-	  		  return (uint8_t*)"HAL_CAN_STATE_READY\n";
-	  		  break;
-	  	  case 0x02U:
-	  		  return (uint8_t*)"HAL_CAN_STATE_LISTENING\n";
-	  		  break;
-	  	  case 0x03U:
-	  		  return (uint8_t*)"HAL_CAN_STATE_SLEEP_PENDING\n";
-	  		  break;
-	  	  case 0x04U:
-	  		  return (uint8_t*)"HAL_CAN_STATE_SLEEP_ACTIVE\n";
-	  		  break;
-	  	  default:
-	  		  return (uint8_t*)"HAL_CAN_STATE_ERROR\n";
-	  		  break;
-	  }
-}
 /* USER CODE END 0 */
 
 /**
@@ -171,34 +125,21 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
-//  HODL_Till_BTN();
+  HODL_Till_BTN();
 
-//  Auto_Baudrate_Setup(PRE);
+//  Auto_Baudrate_Setup(&hcan1, PRE);
+  AT_Join(&huart2);
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-//  uint8_t tick = HAL_GetTick();
 
-//  uint64_t coords;
-//  char msg[32];
-
-  AT_Join(&huart2);
-
-//  PMTK104*37
-
+// **Full cold start**
   GNSS_Transmit(&huart3, (uint8_t*)"PMTK104");
 
+// **Disable Periodic NMEA**
   GNSS_Transmit(&huart3, (uint8_t*)MSG);
-
-//  sprintf((char*)msg, "$%s*%X\r\n", MSG2, CRC_((uint8_t*)MSG2));
-
-//  for(int i = 0; i < 255; i++){
-//	  sprintf(msg, "$PMTK285,4,50*%X\r\n", i);
-//	  HAL_UART_Transmit(&huart3, (uint8_t*)msg, strlen(msg), 1000);
-//	  HAL_Delay(100);
-//  }
 
   while (1)
   {
@@ -212,23 +153,13 @@ int main(void)
 		  AT_Send(&huart2, data, 1);
 	  }
 
-//	  HAL_UART_Transmit(&huart3, msg, strlen((char*)msg), 1000);
 	  HAL_Delay(500);
-//	  for(int i = 0; i < 10; i++)
-//		  Capture_PID(&PIDs[i]);
-//	  CDC_Transmit_FS((uint8_t*)PIDs[0].LastVal, 4);
-//		HAL_UART_Receive(UART_HandleTypeDef *huart, uint8_t *pData, uint16_t Size, uint32_t Timeout)
-//	  HAL_UART_Transmit(&huart5, (uint8_t*)"HEWWO", 5, 100);
-//	  /*
-
-//	  */
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }
-
 
 static void HODL_Till_BTN(void){
   while(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_RESET){
@@ -237,146 +168,7 @@ static void HODL_Till_BTN(void){
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
 }
 
-static void Auto_Baudrate_Setup(uint32_t PRE[]){
-  uint8_t i;
-  for(i = 0; i < 4; i++){
-	  if(IRQRX1 == 0 && IRQRX0 == 0){
-		  if(i == 0){
-			  MX_CAN1_Init(PRE[0], CAN_MODE_SILENT);
-			  HAL_CAN_Start(&hcan1);
-			  HAL_Delay(100);
-		  }else{
-			  HAL_CAN_Stop(&hcan1);
-			  MX_CAN1_Init(PRE[i], CAN_MODE_SILENT);
-			  HAL_CAN_Start(&hcan1);
-			  HAL_Delay(100);
-		  }
-	  }else{
-		  break;
-	  }
-  }
-
-  if(IRQRX1 >= 1 || IRQRX0 >= 1){
-	  char str[42];
-	  sprintf(str, "BAUDRATE DETECTED WITH PRESCALER OF %ld\n", PRE[i-1]);
-	  CDC_Transmit_FS((uint8_t*)str, strlen(str));
-	  HAL_CAN_Stop(&hcan1);
-	  hcan1.Init.Mode = CAN_MODE_NORMAL;
-	  HAL_CAN_Init(&hcan1);
-	  CAN1_Filter_Config();
-	  HAL_CAN_Start(&hcan1);
-  }
-
-  if(IRQRX1 == 0 && IRQRX0 == 0){
-	  CDC_Transmit_FS((uint8_t*)"ERROR DETECTING BAUDRATE", 24);
-//	  Error_Handler();
-  }
-}
-
-uint8_t CRC_(const uint8_t* str) {
-	uint8_t checksum = 0;
-
-    for (int i = 0; i < strlen((char*)str); i++) {
-        checksum ^= (uint8_t)str[i];
-    }
-
-    return checksum;
-}
-
-static uint32_t Capture_PID(Parameters* PID){
-	  PID->LastVal = 0;
-
-	  if(IRQTX == 1){
-		  Capture_PID_(PID->PID);
-		  IRQTX = 0;
-		  TSLR = HAL_GetTick();
-	  }
-
-	  while(IRQTX != 1){
-		  if(HAL_GetTick() - TSLR > 5000){
-		  		  //**Retransmit request in case there was no response**
-		  		  Capture_PID_(PID->PID);
-		  		  TSLR = HAL_GetTick();
-		  }
-	  }
-
-	  for(uint8_t i = 3; i < LPLD[0]; i++){
-		  PID->LastVal = (PID->LastVal<<8) + LPLD[i];
-	  }
-
-	  PID->LastVal = (PID->LastVal * PID->Scale) + PID->Offset;
-
-	  return PID->LastVal;
-}
-
-//	**Helper**
-static void Capture_PID_(uint8_t PID){
-	  uint32_t mailbox;
-	  CAN_TxHeaderTypeDef pHead;
-	  pHead.StdId = 0x7DF;
-	  pHead.IDE = CAN_ID_STD;
-	  pHead.RTR = CAN_RTR_DATA;
-	  pHead.DLC = 8;
-
-	  uint8_t data[] = {0x02, 0x01, PID, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA};
-
-	  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
-
-}
-
-static void Rem_Char(uint8_t* data, uint8_t ch){
-	uint8_t *pr = data, *pw = data;
-    while (*pr) {
-        *pw = *pr++;
-        pw += (*pw != ch);
-    }
-    *pw = '\0';
-}
-
-void xyz_to_wgs84(double x, double y, double z, double *latitude, double *longitude) {
-    double r = sqrt(x*x + y*y + z*z);
-    double lon = atan2(y, x);
-    double lat = asin(z / r);
-
-    *latitude = lat * 180.0 / M_PI;  // Convert to degrees
-    *longitude = lon * 180.0 / M_PI; // Convert to degrees
-}
-
-
-static void GNSS_Get_Coords(UART_HandleTypeDef *huart, uint8_t size, uint32_t* lat, uint32_t* lon){
-	  uint8_t data[64] = {0};
-
-	  GNSS_Transmit(huart, (uint8_t*)MSG2);
-
-	  while(1){
-		  HAL_UART_Receive_STR(huart, data, size, 50);
-//		  strcpy((char*)data, (char*)"$PMTK558,4311951.2,1863684.4,4300899.3,59.5*05\r\n");
-		  if(strstr((char*) data, "$PMTK558") != NULL){
-			  break;
-		  }else if(strstr((char*) data, "0.0,0.0,") != NULL){
-			  *lat = -1;
-			  *lon = -1;
-			  return;
-		  }
-	  }
-
-	  strtok((char*)data, ",");
-
-	  double lat_, lon_;
-
-	  xyz_to_wgs84(atof(strtok(NULL, ",")) , atof(strtok(NULL, ",")), atof(strtok(NULL, ",")), &lat_, &lon_);
-
-	  *lat = (uint32_t)(lat_*1000000);
-	  *lon = (uint32_t)(lon_*1000000);
-}
-
-static void GNSS_Transmit(UART_HandleTypeDef *huart, uint8_t* msg){
-	  uint8_t req[64] = {0};
-	  sprintf((char*)req, "$%s*%X\r\n", msg, CRC_((uint8_t*)msg));
-	  HAL_UART_Transmit(huart, req, strlen((char*)req), 1000);
-}
-
-static void HAL_UART_Receive_STR(UART_HandleTypeDef *huart, uint8_t *pData, uint8_t Size, uint32_t Timeout){
+void HAL_UART_Receive_STR(UART_HandleTypeDef *huart, uint8_t *pData, uint8_t Size, uint32_t Timeout){
 	memset(pData, 0, Size);
 	uint8_t buff[2] = {0};
 	for(uint8_t i = Size; buff[0] != '\n' && Size >= 0; i--){
@@ -385,44 +177,6 @@ static void HAL_UART_Receive_STR(UART_HandleTypeDef *huart, uint8_t *pData, uint
 	}
 }
 
-static void AT_Send(UART_HandleTypeDef *huart, uint8_t* data, uint8_t Chnl){
-
-	uint8_t msg[64] = {0};
-	sprintf((char*)msg, "AT+SEND=%d:0:%s\n", Chnl, (char*)data);
-	HAL_UART_Transmit(huart, msg, strlen((char*)msg), 1000);
-
-}
-
-static void AT_Join(UART_HandleTypeDef *huart){
-	//Reset teh LoRa E5 module
-	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_RESET);
-	HAL_Delay(200);
-	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_11, GPIO_PIN_SET);
-
-	HAL_Delay(100);
-
-	//Start JOIN
-	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
-	uint8_t msg[64] = {0};
-	uint32_t tick = HAL_GetTick();
-	HAL_UART_Transmit(huart, (uint8_t*)"AT+JOIN=1\n", 10, 1000);
-	while(strstr((char*) msg, "JOINED") == NULL){
-		if(HAL_GetTick() - tick >= 10000 || strstr((char*) msg, "FAILED") != NULL){
-			tick = HAL_GetTick();
-			HAL_UART_Transmit(huart, (uint8_t*)"AT+JOIN=1\n", 10, 1000);
-		}
-		HAL_UART_Receive_STR(huart, msg, 64, 50);
-	}
-	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET);
-}
-
-/**
-  * @brief System Clock Configuration
-  * @retval None
-  */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -464,76 +218,6 @@ void SystemClock_Config(void)
   }
 }
 
-/**
-  * @brief CAN1 Initialization Function
-  * @param None
-  * @retval None
-  */
-
-static void CAN1_Filter_Config(void){
-	//  **Configure filters**
-  CAN_FilterTypeDef filters = {0};
-
-  filters.FilterActivation = ENABLE;
-  filters.FilterFIFOAssignment = CAN_FILTER_FIFO0;
-  filters.FilterBank = 0;
-  filters.FilterMode = CAN_FILTERMODE_IDMASK;
-  filters.FilterScale = CAN_FILTERSCALE_32BIT;
-  filters.FilterIdHigh = 0x7E8 << 5;
-  filters.FilterIdLow = 0;
-  filters.FilterMaskIdHigh = 0x7fd << 5;
-  filters.FilterMaskIdLow = 0;
-
-  //  memset(&filters, 0, sizeof(CAN_FilterTypeDef));
-
-  if (HAL_CAN_ConfigFilter(&hcan1, &filters) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-}
-
-static void MX_CAN1_Init(uint32_t Prescaler, uint32_t Mode)
-{
-
-  /* USER CODE BEGIN CAN1_Init 0 */
-
-  /* USER CODE END CAN1_Init 0 */
-
-  /* USER CODE BEGIN CAN1_Init 1 */
-
-  /* USER CODE END CAN1_Init 1 */
-  hcan1.Instance = CAN1;
-  hcan1.Init.Prescaler = Prescaler;
-  hcan1.Init.Mode = Mode;
-  hcan1.Init.SyncJumpWidth = CAN_SJW_1TQ;
-  hcan1.Init.TimeSeg1 = CAN_BS1_2TQ;
-  hcan1.Init.TimeSeg2 = CAN_BS2_1TQ;
-  hcan1.Init.TimeTriggeredMode = DISABLE;
-  hcan1.Init.AutoBusOff = DISABLE;
-  hcan1.Init.AutoWakeUp = DISABLE;
-  hcan1.Init.AutoRetransmission = DISABLE;
-  hcan1.Init.ReceiveFifoLocked = DISABLE;
-  hcan1.Init.TransmitFifoPriority = DISABLE;
-  if (HAL_CAN_Init(&hcan1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN CAN1_Init 2 */
-  HAL_CAN_ActivateNotification(&hcan1, 0xFFFFFFFFU);
-
-  CAN_FilterTypeDef filters = {0};
-  filters.FilterActivation = 1;
-
-  HAL_CAN_ConfigFilter(&hcan1, &filters);
-  /* USER CODE END CAN1_Init 2 */
-}
-
-/**
-  * @brief USART2 Initialization Function
-  * @param None
-  * @retval None
-  */
 static void MX_USART2_UART_Init(void)
 {
 

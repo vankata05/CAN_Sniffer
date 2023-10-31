@@ -52,6 +52,8 @@ extern "C" {
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
+void HAL_UART_Receive_STR(UART_HandleTypeDef *huart, uint8_t *pData, uint8_t Size, uint32_t Timeout);
+
 /* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */
