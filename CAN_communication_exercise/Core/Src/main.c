@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 #include "usbd_cdc_if.h"
 /* USER CODE END Includes */
 
@@ -36,6 +37,9 @@ typedef struct {
 	uint8_t Offset;
 	uint32_t LastVal;
 }Parameters;
+
+#define MSG "PMTK314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
+#define MSG2 "PMTK458"
 
 /* USER CODE END PTD */
 
@@ -87,6 +91,7 @@ Parameters PIDs[] = {
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void GNSS_Transmit(UART_HandleTypeDef *huart, uint8_t* msg);
 static void MX_CAN1_Init(uint32_t Prescaler, uint32_t Mode);
 static void CAN1_Filter_Config(void);
 static void Capture_PID_(uint8_t PID);
@@ -96,7 +101,7 @@ static void HODL_Till_BTN(void);
 static void MX_USART3_UART_Init(void);
 static void MX_USART2_UART_Init(void);
 static void HAL_UART_Receive_STR(UART_HandleTypeDef *huart, uint8_t *pData, uint8_t Size, uint32_t Timeout);
-static uint64_t GNSS_Get_Coords(UART_HandleTypeDef *huart, uint8_t size);
+static void GNSS_Get_Coords(UART_HandleTypeDef *huart, uint8_t size, uint32_t* lat, uint32_t* lon);
 static void Rem_Char(uint8_t* data, uint8_t ch);
 static void AT_Join(UART_HandleTypeDef *huart);
 static void AT_Send(UART_HandleTypeDef *huart, uint8_t* data, uint8_t Chnl);
@@ -168,7 +173,7 @@ int main(void)
 
 //  HODL_Till_BTN();
 
-  Auto_Baudrate_Setup(PRE);
+//  Auto_Baudrate_Setup(PRE);
 
   /* USER CODE END 2 */
 
@@ -176,21 +181,18 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 //  uint8_t tick = HAL_GetTick();
 
-  uint64_t coords;
-
-//  AT_Join(&huart2);
+//  uint64_t coords;
 //  char msg[32];
 
-  uint8_t msg[64];
+  AT_Join(&huart2);
 
-#define MSG "PMTK314,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
+//  PMTK104*37
 
-  sprintf((char*)msg, "$%s*%X\r\n", MSG, CRC_((uint8_t*)MSG));
-//  while(1){
-	HAL_UART_Transmit(&huart3, msg, strlen((char*)msg), 1000);
-	HAL_Delay(10000);
-//  }
-  HAL_UART_Transmit(&huart3, msg, strlen((char*)msg), 1000);
+  GNSS_Transmit(&huart3, (uint8_t*)"PMTK104");
+
+  GNSS_Transmit(&huart3, (uint8_t*)MSG);
+
+//  sprintf((char*)msg, "$%s*%X\r\n", MSG2, CRC_((uint8_t*)MSG2));
 
 //  for(int i = 0; i < 255; i++){
 //	  sprintf(msg, "$PMTK285,4,50*%X\r\n", i);
@@ -200,13 +202,18 @@ int main(void)
 
   while (1)
   {
-	  coords = GNSS_Get_Coords(&huart3, 64);
+	  uint32_t lat, lon = 0;
+	  GNSS_Get_Coords(&huart3, 64, &lat, &lon);
 
-	  uint8_t data[32] = {0};
-	  sprintf((char*)data, "%d", (uint16_t)(coords >> 32));
+	  if(lat > 0 && lon > 0){
+		  uint8_t data[32] = {0};
+		  sprintf((char*)data, "%lX%lX", lat, lon);
 
-	  AT_Send(&huart2, data, 1);
-	  HAL_Delay(10000);
+		  AT_Send(&huart2, data, 1);
+	  }
+
+//	  HAL_UART_Transmit(&huart3, msg, strlen((char*)msg), 1000);
+	  HAL_Delay(500);
 //	  for(int i = 0; i < 10; i++)
 //		  Capture_PID(&PIDs[i]);
 //	  CDC_Transmit_FS((uint8_t*)PIDs[0].LastVal, 4);
@@ -325,46 +332,47 @@ static void Rem_Char(uint8_t* data, uint8_t ch){
     *pw = '\0';
 }
 
-static uint64_t GNSS_Get_Coords(UART_HandleTypeDef *huart, uint8_t size){
-	  uint8_t data[size];
-	  memset(data, 0, size);
+void xyz_to_wgs84(double x, double y, double z, double *latitude, double *longitude) {
+    double r = sqrt(x*x + y*y + z*z);
+    double lon = atan2(y, x);
+    double lat = asin(z / r);
+
+    *latitude = lat * 180.0 / M_PI;  // Convert to degrees
+    *longitude = lon * 180.0 / M_PI; // Convert to degrees
+}
+
+
+static void GNSS_Get_Coords(UART_HandleTypeDef *huart, uint8_t size, uint32_t* lat, uint32_t* lon){
+	  uint8_t data[64] = {0};
+
+	  GNSS_Transmit(huart, (uint8_t*)MSG2);
+
 	  while(1){
-//		  HAL_UART_Receive_STR(huart, data, size, 50);
-		  strcpy((char*)data, (char*)"$GNGLL,4239.8504,N,02322.3824,E,065205.000,A,A*4A");
-		  if(data[1] == (uint8_t)'G' && data[2] == (uint8_t)'N' && data[3] == (uint8_t)'G' && data[4] == (uint8_t)'L' && data[5] == (uint8_t)'L'){
+		  HAL_UART_Receive_STR(huart, data, size, 50);
+//		  strcpy((char*)data, (char*)"$PMTK558,4311951.2,1863684.4,4300899.3,59.5*05\r\n");
+		  if(strstr((char*) data, "$PMTK558") != NULL){
 			  break;
+		  }else if(strstr((char*) data, "0.0,0.0,") != NULL){
+			  *lat = -1;
+			  *lon = -1;
+			  return;
 		  }
 	  }
 
-//	**znam che moje sus strtok, narochno ne e taka**
-	  for(int i = 0; i < size && data[i] != 0; i++){
-		  if(i < 18){
-			  if(i > 8)
-				  data[i] = data[i+11];
-			  else
-				  data[i] = data[i+7];
-		  }else if(i == 18){
-			  data[i] = '\n';
-		  }else{
-			  data[i] = 0;
-		  }
-	  }
+	  strtok((char*)data, ",");
 
-	  Rem_Char(data, '.');
+	  double lat_, lon_;
 
-	    uint8_t lat[9] = {0};
-	    memcpy(&lat, data, 8);
-	    lat[8] = 0;
-	    uint8_t lon[9] = {0};
-	    memcpy(&lon, (char*)(data + 8), 8);
-	    lat[8] = 0;
+	  xyz_to_wgs84(atof(strtok(NULL, ",")) , atof(strtok(NULL, ",")), atof(strtok(NULL, ",")), &lat_, &lon_);
 
-	  uint64_t out;
-      out = atoi((char*)lat);
-      out = out << 32;
-      out += atoi((char*)lon);
+	  *lat = (uint32_t)(lat_*1000000);
+	  *lon = (uint32_t)(lon_*1000000);
+}
 
-	  return out;
+static void GNSS_Transmit(UART_HandleTypeDef *huart, uint8_t* msg){
+	  uint8_t req[64] = {0};
+	  sprintf((char*)req, "$%s*%X\r\n", msg, CRC_((uint8_t*)msg));
+	  HAL_UART_Transmit(huart, req, strlen((char*)req), 1000);
 }
 
 static void HAL_UART_Receive_STR(UART_HandleTypeDef *huart, uint8_t *pData, uint8_t Size, uint32_t Timeout){
