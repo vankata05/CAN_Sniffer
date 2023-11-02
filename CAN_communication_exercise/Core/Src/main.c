@@ -127,6 +127,9 @@ int main(void)
 
   HODL_Till_BTN();
 
+  // **Full cold start**
+  GNSS_Transmit(&huart3, (uint8_t*)"PMTK104");
+
 //  Auto_Baudrate_Setup(&hcan1, PRE);
   AT_Join(&huart2);
 
@@ -135,11 +138,10 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-// **Full cold start**
-  GNSS_Transmit(&huart3, (uint8_t*)"PMTK104");
-
 // **Disable Periodic NMEA**
   GNSS_Transmit(&huart3, (uint8_t*)MSG);
+
+  HAL_Delay(50);
 
   while (1)
   {
