@@ -34,8 +34,8 @@ void GNSS_Get_Coords(UART_HandleTypeDef *huart, uint8_t size, uint32_t* lat, uin
 	  GNSS_Transmit(huart, (uint8_t*)MSG2);
 
 	  while(1){
-		  HAL_UART_Receive_STR(huart, data, size, 50);
-//		  strcpy((char*)data, (char*)"$PMTK558,4311951.2,1863684.4,4300899.3,59.5*05\r\n");
+//		  HAL_UART_Receive_STR(huart, data, size, 50);
+		  strcpy((char*)data, (char*)"$PMTK558,4311951.2,1863684.4,4300899.3,59.5*05\r\n");
 		  if(strstr((char*) data, "$PMTK558") != NULL){
 			  break;
 		  }else if(strstr((char*) data, "0.0,0.0,") != NULL){

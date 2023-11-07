@@ -7,6 +7,14 @@
 
 #include "LoRa.h"
 
+//  **Bypass bandwith limitations**
+static void Bypass_DCR(UART_HandleTypeDef *huart){
+	HAL_Delay(50);
+	HAL_UART_Transmit(huart, (uint8_t*)"AT+DCS=0\n", strlen("AT+DCS=0\n"), 1000);
+	HAL_UART_Transmit(huart, (uint8_t*)"AT+DR=2\n", strlen("AT+DR=2\n"), 1000);
+	HAL_Delay(50);
+}
+
 void AT_Send(UART_HandleTypeDef *huart, uint8_t* data, uint8_t Chnl){
 
 	uint8_t msg[64] = {0};
@@ -27,6 +35,9 @@ void AT_Join(UART_HandleTypeDef *huart){
 
 	//Start JOIN
 	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_13, GPIO_PIN_SET);
+
+	Bypass_DCR(huart);
+
 	uint8_t msg[64] = {0};
 	uint32_t tick = HAL_GetTick();
 	HAL_UART_Transmit(huart, (uint8_t*)"AT+JOIN=1\n", 10, 1000);

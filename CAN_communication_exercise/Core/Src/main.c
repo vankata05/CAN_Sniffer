@@ -133,6 +133,8 @@ int main(void)
 //  Auto_Baudrate_Setup(&hcan1, PRE);
   AT_Join(&huart2);
 
+  HAL_Delay(500);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -143,8 +145,11 @@ int main(void)
 
   HAL_Delay(50);
 
+  int chnl = 0;
+
   while (1)
   {
+	  HAL_UART_Transmit(&huart2, (uint8_t*)"AT+DR=?\n", strlen("AT+DR=?\n"), 1000);
 	  uint32_t lat, lon = 0;
 	  GNSS_Get_Coords(&huart3, 64, &lat, &lon);
 
@@ -152,10 +157,14 @@ int main(void)
 		  uint8_t data[32] = {0};
 		  sprintf((char*)data, "%lX%lX", lat, lon);
 
-		  AT_Send(&huart2, data, 1);
+		  AT_Send(&huart2, data, chnl);
+		  chnl++;
+		  if(chnl > 7){
+			  chnl = 0;
+		  }
 	  }
 
-	  HAL_Delay(500);
+	  HAL_Delay(1000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
