@@ -1,8 +1,0 @@
-C:/Users/IVI6SF/GitRepos/CAN_Sniffer/LoRaWan-E5-Node/Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_gpio.c:156:6:HAL_GPIO_Init	15
-C:/Users/IVI6SF/GitRepos/CAN_Sniffer/LoRaWan-E5-Node/Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_gpio.c:296:6:HAL_GPIO_DeInit	7
-C:/Users/IVI6SF/GitRepos/CAN_Sniffer/LoRaWan-E5-Node/Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_gpio.c:383:15:HAL_GPIO_ReadPin	2
-C:/Users/IVI6SF/GitRepos/CAN_Sniffer/LoRaWan-E5-Node/Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_gpio.c:417:6:HAL_GPIO_WritePin	2
-C:/Users/IVI6SF/GitRepos/CAN_Sniffer/LoRaWan-E5-Node/Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_gpio.c:440:6:HAL_GPIO_TogglePin	1
-C:/Users/IVI6SF/GitRepos/CAN_Sniffer/LoRaWan-E5-Node/Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_gpio.c:465:19:HAL_GPIO_LockPin	2
-C:/Users/IVI6SF/GitRepos/CAN_Sniffer/LoRaWan-E5-Node/Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_gpio.c:500:6:HAL_GPIO_EXTI_IRQHandler	2
-C:/Users/IVI6SF/GitRepos/CAN_Sniffer/LoRaWan-E5-Node/Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_gpio.c:515:13:HAL_GPIO_EXTI_Callback	1

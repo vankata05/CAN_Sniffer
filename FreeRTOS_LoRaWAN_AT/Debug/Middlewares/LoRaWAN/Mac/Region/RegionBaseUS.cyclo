@@ -1,4 +1,0 @@
-C:/Users/IVI6SF/GitRepos/CAN_Sniffer/LoRaWan-E5-Node/Middlewares/Third_Party/LoRaWAN/Mac/Region/RegionBaseUS.c:49:24:FindAvailable125kHzChannels	5
-C:/Users/IVI6SF/GitRepos/CAN_Sniffer/LoRaWan-E5-Node/Middlewares/Third_Party/LoRaWAN/Mac/Region/RegionBaseUS.c:75:17:RegionBaseUSComputeNext125kHzJoinChannel	11
-C:/Users/IVI6SF/GitRepos/CAN_Sniffer/LoRaWan-E5-Node/Middlewares/Third_Party/LoRaWAN/Mac/Region/RegionBaseUS.c:137:6:RegionBaseUSVerifyFrequencyGroup	4
-C:/Users/IVI6SF/GitRepos/CAN_Sniffer/LoRaWan-E5-Node/Middlewares/Third_Party/LoRaWAN/Mac/Region/RegionBaseUS.c:148:10:RegionBaseUSCalcDownlinkFrequency	1
