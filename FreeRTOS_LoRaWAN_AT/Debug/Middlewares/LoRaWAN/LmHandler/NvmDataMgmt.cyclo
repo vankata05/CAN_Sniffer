@@ -1,0 +1,4 @@
+C:/Users/IVI6SF/GitRepos/CAN_Sniffer/LoRaWan-E5-Node/Middlewares/Third_Party/LoRaWAN/LmHandler/NvmDataMgmt.c:52:6:NvmDataMgmtEvent	1
+C:/Users/IVI6SF/GitRepos/CAN_Sniffer/LoRaWan-E5-Node/Middlewares/Third_Party/LoRaWAN/LmHandler/NvmDataMgmt.c:59:10:NvmDataMgmtStore	1
+C:/Users/IVI6SF/GitRepos/CAN_Sniffer/LoRaWan-E5-Node/Middlewares/Third_Party/LoRaWAN/LmHandler/NvmDataMgmt.c:154:10:NvmDataMgmtRestore	1
+C:/Users/IVI6SF/GitRepos/CAN_Sniffer/LoRaWan-E5-Node/Middlewares/Third_Party/LoRaWAN/LmHandler/NvmDataMgmt.c:221:6:NvmDataMgmtFactoryReset	1
