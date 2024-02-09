@@ -18,14 +18,14 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "usb_device.h"
+//#include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#include "usbd_cdc_if.h"
+//#include "usbd_cdc_if.h"
 #include "GNSS.h"
 #include "OBDII.h"
 #include "LoRa.h"
@@ -120,18 +120,20 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_USB_DEVICE_Init();
+//  MX_USB_DEVICE_Init();
   MX_USART3_UART_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  HODL_Till_BTN();
+//  HODL_Till_BTN();
+
+  HAL_Delay(5000);
 
   // **Full cold start**
   GNSS_Transmit(&huart3, (uint8_t*)"PMTK104");
 
 //  Auto_Baudrate_Setup(&hcan1, PRE);
-  AT_Join(&huart2);
+//  AT_Join(&huart2);
 
   HAL_Delay(500);
 
@@ -149,20 +151,22 @@ int main(void)
 
   while (1)
   {
-	  HAL_UART_Transmit(&huart2, (uint8_t*)"AT+DR=?\n", strlen("AT+DR=?\n"), 1000);
-	  uint32_t lat, lon = 0;
-	  GNSS_Get_Coords(&huart3, 64, &lat, &lon);
-
-	  if(lat > 0 && lon > 0){
-		  uint8_t data[32] = {0};
-		  sprintf((char*)data, "%lX%lX", lat, lon);
-
-		  AT_Send(&huart2, data, chnl);
-		  chnl++;
-		  if(chnl > 7){
-			  chnl = 0;
-		  }
-	  }
+	  HAL_UART_Transmit(&huart2, (uint8_t*)"HALLO", 5, 1000);
+//	  HAL_UART_Transmit(&huart2, (uint8_t*)"AT+DR=?\n", strlen("AT+DR=?\n"), 1000);
+//	  uint32_t lat, lon = 0;
+//	  GNSS_Get_Coords(&huart3, 64, &lat, &lon);
+//
+//	  if(lat > 0 && lon > 0){
+//		  uint8_t data[32] = {0};
+//		  sprintf((char*)data, "%lX%lX", lat, lon);
+//
+////		  AT_Send(&huart2, data, chnl);
+//		  HAL_UART_Transmit(&huart2, data, strlen(data), 1000);
+//		  chnl++;
+//		  if(chnl > 7){
+//			  chnl = 0;
+//		  }
+//	  }
 
 	  HAL_Delay(1000);
     /* USER CODE END WHILE */
@@ -244,7 +248,7 @@ static void MX_USART2_UART_Init(void)
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
-  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.Mode = UART_MODE_TX;
   huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart2.Init.OverSampling = UART_OVERSAMPLING_16;
   if (HAL_UART_Init(&huart2) != HAL_OK)

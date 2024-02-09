@@ -1,0 +1,5 @@
+../Core/Src/GNSS.c:17:6:GNSS_Init	1
+../Core/Src/GNSS.c:25:9:CRC_	2
+../Core/Src/GNSS.c:35:6:xyz_to_wgs84	1
+../Core/Src/GNSS.c:45:9:GNSS_Get_Coords	4
+../Core/Src/GNSS.c:85:6:GNSS_Transmit	1

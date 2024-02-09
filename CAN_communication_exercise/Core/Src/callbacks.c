@@ -4,7 +4,7 @@
  *  Created on: Aug 28, 2023
  *      Author: IVI6SF
  */
-#include "usbd_cdc_if.h"
+//#include "usbd_cdc_if.h"
 #include "stm32f4xx_hal.h"
 #include <string.h>
 

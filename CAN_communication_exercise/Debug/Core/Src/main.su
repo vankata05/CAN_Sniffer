@@ -1,8 +1,8 @@
-../Core/Src/main.c:98:5:main	56	static
-../Core/Src/main.c:175:13:HODL_Till_BTN	8	static
-../Core/Src/main.c:182:6:HAL_UART_Receive_STR	32	static
-../Core/Src/main.c:191:6:SystemClock_Config	88	static
-../Core/Src/main.c:232:13:MX_USART2_UART_Init	8	static
-../Core/Src/main.c:265:13:MX_USART3_UART_Init	8	static
-../Core/Src/main.c:300:13:MX_GPIO_Init	40	static
-../Core/Src/main.c:349:6:Error_Handler	4	static,ignoring_inline_asm
+../Core/Src/main.c:98:5:main	16	static
+../Core/Src/main.c:179:13:HODL_Till_BTN	8	static
+../Core/Src/main.c:186:6:HAL_UART_Receive_STR	32	static
+../Core/Src/main.c:195:6:SystemClock_Config	88	static
+../Core/Src/main.c:236:13:MX_USART2_UART_Init	8	static
+../Core/Src/main.c:269:13:MX_USART3_UART_Init	8	static
+../Core/Src/main.c:304:13:MX_GPIO_Init	40	static
+../Core/Src/main.c:353:6:Error_Handler	4	static,ignoring_inline_asm
