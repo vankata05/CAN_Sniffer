@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+
+<head>
+    <link rel="stylesheet" href="accPageStyles.css"/>
+    <title>CAN_Sniffer</title>
+    <link rel = "icon" href = "icon2.png">
+</head>
+
+<body>
+    <script>
+    function handleMenu(buttonElement){
+        if(buttonElement.id === "open") buttonElement.id = "closed";
+        else buttonElement.id = "open";
+    }
+    </script>
+
+    <div class = "wraper">
+        <button onclick = "handleMenu(this)" id = "closed" class = "menuButton"><img src = "menu.png" style = "width: 100%; height: 100%;"></button>
+        <nav class = "sidebar">
+            <ul>
+                <li><button onclick="window.location.href = '/';"><img src = "home.png" class = "btnImage">Home</button></li>
+                <li><button onclick="window.location.href = '/trackersPage';"><img src = "trackers.png" class = "btnImage">Trackers</button></li>
+                <li><button onclick="window.location.href = '/accountPage';"><img src = "account.png" class = "btnImage">Account</button></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class = "container" id = "homePage">
+        <h1 class = "title">CAN_Sniffer</h1>
+
+        <div class = "formHolder">
+
+            <form class = "formBox" style="height: 45%;" method="post" action="/authorization">
+                <p class = "formTitle">Verification</p>
+                <p class = "text">A verification code has been sent to the selected email. Please enter the code here.</p>
+                <p class = "text">Enter verification code</p>
+                <input type = "text" class = "textbox" name="auth_code">
+                <p id = "error" style = "color: rgb(90, 1, 1); margin: 0px; padding: 0px; "><%=error%></p>
+                <br>
+                <input type = "Submit" class = "onscreenBtn">
+            </form>
+
+        </div>
+        <p class = "footer"></p>
+    </div> 
+</body>

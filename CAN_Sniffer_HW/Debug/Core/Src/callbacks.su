@@ -1,2 +1,0 @@
-../Core/Src/callbacks.c:19:6:HAL_CAN_RxFifo0MsgPendingCallback	48	static
-../Core/Src/callbacks.c:29:6:HAL_UARTEx_RxEventCallback	24	static

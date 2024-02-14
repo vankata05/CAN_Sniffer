@@ -1,4 +1,0 @@
-../Core/Src/LoRa.c:16:13:Bypass_DCR	1
-../Core/Src/LoRa.c:25:6:AT_Send	1
-../Core/Src/LoRa.c:35:6:AT_Join	5
-../Core/Src/LoRa.c:65:6:LoRa_Init	1

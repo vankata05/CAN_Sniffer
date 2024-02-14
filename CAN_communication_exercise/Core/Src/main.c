@@ -147,11 +147,11 @@ int main(void)
 
   HAL_Delay(50);
 
-  int chnl = 0;
+//  int chnl = 0;
 
   while (1)
   {
-	  HAL_UART_Transmit(&huart2, (uint8_t*)"HALLO", 5, 1000);
+//	  HAL_UART_Transmit(&huart2, (uint8_t*)"HALLO", 5, 1000);
 //	  HAL_UART_Transmit(&huart2, (uint8_t*)"AT+DR=?\n", strlen("AT+DR=?\n"), 1000);
 //	  uint32_t lat, lon = 0;
 //	  GNSS_Get_Coords(&huart3, 64, &lat, &lon);
@@ -167,6 +167,22 @@ int main(void)
 //			  chnl = 0;
 //		  }
 //	  }
+	  uint32_t mailbox;
+	  CAN_TxHeaderTypeDef pHead = {0};
+	  pHead.StdId = 0x7DF;
+	  pHead.IDE = CAN_ID_STD;
+	  pHead.RTR = CAN_RTR_DATA;
+	  pHead.DLC = 8;
+
+	  uint8_t data[] = {0x02, 0x01, 0x00, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA};
+
+	  HAL_CAN_AddTxMessage(&hcan1, &pHead, data, &mailbox);
+
+  //	  uint8_t state[32] = getState(&hcan1);
+
+  //	  pharse_GLL((uint8_t*)"$GNGLL,4239.5638,N,02318.8844,E,152057.000,A,A*4F");
+
+//	  HAL_Delay(10);
 
 	  HAL_Delay(1000);
     /* USER CODE END WHILE */

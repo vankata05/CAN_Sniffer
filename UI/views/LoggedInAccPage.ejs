@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+<head>
+    <link rel="stylesheet" href="accPageStyles.css"/>
+    <title>CAN_Sniffer</title>
+    <link rel = "icon" href = "icon2.png">
+</head>
+
+<body>
+    <script>
+    function handleMenu(buttonElement){
+        if(buttonElement.id === "open") buttonElement.id = "closed";
+        else buttonElement.id = "open";
+    }
+    </script>
+
+    <div class = "wraper">
+        <button onclick = "handleMenu(this)" id = "closed" class = "menuButton"><img src = "menu.png" style = "width: 100%; height: 100%;"></button>
+        <nav class = "sidebar">
+            <ul>
+                <li><button onclick="window.location.href = '/';"><img src = "home.png" class = "btnImage">Home</button></li>
+                <li><button onclick="window.location.href = '/trackersPage';"><img src = "trackers.png" class = "btnImage">Trackers</button></li>
+                <li><button onclick="window.location.href = '/accountPage';"><img src = "account.png" class = "btnImage">Account</button></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class = "container" id = "homePage">
+        <h1 class = "title">CAN_Sniffer</h1>
+
+        <div style = "display: flex; justify-content: center; align-items: center; text-align: center;">
+
+            <button class = "accBtn" onclick="window.location.href = '/trackersPage';">
+                <img src = "trackers.png" style = "height: 65%;">
+                <p class = "text">Trackers</p>
+            </button>
+            <form action="/logout", method="post">
+            <input type="submit" value="Log Out" class = "accBtn">
+            </form>
+            <button class = "accBtn" onclick="window.location.href = '/addDevicePage';">
+                <p class = "text">Add Device</p>
+            </button>
+
+        </div>
+        <p class = "footer"></p>
+    </div> 
+</body>

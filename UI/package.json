@@ -1,16 +1,5 @@
 {
-  "name": "ui",
-  "version": "1.0.0",
-  "description": "User interface for CAN_Sniffer",
-  "main": "index.js",
-  "scripts": {
-    "test": "test",
-    "start": "node index.js"
-  },
-  "author": "Ivan",
-  "license": "ISC",
   "dependencies": {
-    "@googlemaps/routing": "^1.0.2",
     "axios": "^1.3.4",
     "bcrypt": "^5.1.0",
     "cookie-parser": "^1.4.6",

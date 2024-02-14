@@ -1,8 +1,8 @@
 ../Core/Src/main.c:98:5:main	1
-../Core/Src/main.c:179:13:HODL_Till_BTN	2
-../Core/Src/main.c:186:6:HAL_UART_Receive_STR	2
-../Core/Src/main.c:195:6:SystemClock_Config	3
-../Core/Src/main.c:236:13:MX_USART2_UART_Init	2
-../Core/Src/main.c:269:13:MX_USART3_UART_Init	2
-../Core/Src/main.c:304:13:MX_GPIO_Init	1
-../Core/Src/main.c:353:6:Error_Handler	1
+../Core/Src/main.c:195:13:HODL_Till_BTN	2
+../Core/Src/main.c:202:6:HAL_UART_Receive_STR	2
+../Core/Src/main.c:211:6:SystemClock_Config	3
+../Core/Src/main.c:252:13:MX_USART2_UART_Init	2
+../Core/Src/main.c:285:13:MX_USART3_UART_Init	2
+../Core/Src/main.c:320:13:MX_GPIO_Init	1
+../Core/Src/main.c:369:6:Error_Handler	1

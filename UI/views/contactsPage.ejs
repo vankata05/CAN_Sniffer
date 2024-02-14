@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+
+<head>
+    <link rel="stylesheet" href="contactsPageStyles.css"/>
+    <title>Petsafe</title>
+    <link rel = "icon" href = "icon2.png">
+</head>
+
+<body>
+    <script>
+    function handleMenu(buttonElement){
+        if(buttonElement.id === "open") buttonElement.id = "closed";
+        else buttonElement.id = "open";
+    }
+    </script>
+
+    <div class = "wraper">
+        <button onclick = "handleMenu(this)" id = "closed" class = "menuButton"><img src = "menu.png" style = "width: 100%; height: 100%;"></button>
+        <nav class = "sidebar">
+            <ul>
+                <li><button onclick="window.location.href = '/';"><img src = "home.png" class = "btnImage">Home</button></li>
+                <li><button onclick="window.location.href = '/contactsPage';"><img src = "contacts.png" class = "btnImage">Contacts</button></li>
+                <li><button onclick="window.location.href = '/trackersPage';"><img src = "trackers.png" class = "btnImage">Trackers</button></li>
+                <li><button onclick="window.location.href = '/accountPage';"><img src = "account.png" class = "btnImage">Account</button></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class = "container" id = "homePage">
+        <h1 class = "title">PetSafe</h1>
+        <div class = "infoHolder">
+            <div class = "contact">
+                <img src = "germanSehpard.png" style="height: 45%;">
+                <h2 style="color: white;">Ivan Ivanov</h2>
+                <p class = "btnText">ivan.v.ivanov.2019@elsys-bg.org</p>
+            </div>
+            <div class = "contact">
+                <img src = "Bald-eagle.png" style="height: 45%;">
+                <h2 style="color: white;">Petyo Miladinov</h2>
+                <p class = "btnText">petyo.p.miladinov.2019@elsys-bg.org</p>
+            </div>
+            <!-- <div class = "contact">
+                <img src = "person-icon.png" style="height: 45%;">
+                <h2 style="color: white;">Vasil</h2>
+                <p class = "btnText">[insert contact]</p>
+            </div> -->
+            <div class = "contact">
+                <img src = "ShibaInu.png" style="height: 45%;">
+                <h2 style="color: white;">Pavel Shalamanov</h2>
+                <p class = "btnText">pavel.p.shalamanov.2021@elsys-bg.org</p>
+            </div>
+            <div class = "contact">
+                <img src = "jackrustel.png" style="height: 45%;">
+                <h2 style="color: white;">Kristian Nikolov</h2>
+                <p class = "btnText">kristian.g.nikolov.2021@elsys-bg.org</p>
+            </div>
+        </div>
+        <p class = "footer"></p>
+    </div> 
+</body>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+
+<head>
+    <link rel="stylesheet" href="trackerPageStyles.css"/>
+    <title>CAN_Sniffer</title>
+    <link rel = "icon" href = "icon2.png">
+    <script src="https://kit.fontawesome.com/6b0a6f3b83.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script>
+    function handleMenu(buttonElement){
+        if(buttonElement.id === "open") buttonElement.id = "closed";
+        else buttonElement.id = "open";
+    }
+    </script>
+
+    <div class = "wraper">
+        <button onclick = "handleMenu(this)" id = "closed" class = "menuButton"><img src = "menu.png" style = "width: 100%; height: 100%;"></button>
+        <nav class = "sidebar">
+            <ul>
+                <li><button onclick="window.location.href = '/';"><img src = "home.png" class = "btnImage">Home</button></li>
+                <li><button onclick="window.location.href = '/trackersPage';"><img src = "trackers.png" class = "btnImage">Trackers</button></li>
+                <li><button onclick="window.location.href = '/accountPage';"><img src = "account.png" class = "btnImage">Account</button></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class = "container" id = "homePage">
+        <p class = "map" id="map">
+            <iframe
+            src="https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q= <%=coords%>"
+            width="88%"
+            height="100%"
+            style="border:0;"
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+        </p>
+
+        <!-- footer -->
+        <p class="footer">
+            Last Update : <%=reported_at%>
+        </p>
+
+        <!-- <div class="LastUpdated">
+            <
+        </div> -->
+
+        <div class="topField">
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+            <script>
+            $(document).ready(function(){
+                // $("#toggleButton").hover(
+                //     function() {
+                //         $(this).css('background-color', '#87CEFA'); // Change to hover color
+                //         $(this).find('i').css('color', '#FFF'); // Change icon color to white
+                //     }, function() {
+                //         $(this).css('background-color', '#FFF'); // Change back to original color
+                //         $(this).find('i').css('color', ''); // Reset icon color
+                //     }
+                // );
+
+                $("#toggleButton").click(function(){
+                    // var originalColor = '#FFF'
+                    // $(this).css('background-color', '#000'); // Change as needed
+
+                    $(".topField").slideToggle(function() {
+                        // Check if the topField is visible
+                        if (!$(".topField").is(":visible")) {
+                            // If it is visible, reset the grid area of the .map class
+                            $(".map").css("grid-area", "a / 1 / c / 4");
+                            $(".footer").hide();
+                            $(".map").css({"width": "100%", "height": "95%"});
+                        }
+                    });
+                    if ($(".topField").is(":visible")) {
+                        // If it is not visible, make the .map class cover grid areas a and c
+                        $(".map").css("grid-area", "b / 1 / c / 4");
+                        $(".footer").show();
+                        $(".map").css({"width": "100%", "height": "95%"});
+                    }
+
+                    // Check the current class of the icon and toggle it
+                    var icon = $(this).find('i');
+                    icon.fadeOut(200, function() {
+                        if (icon.hasClass('fa-car')) {
+                            icon.removeClass('fa-car').addClass('fa-car-crash');
+                        } else {
+                            icon.removeClass('fa-car-crash').addClass('fa-car');
+                        }
+                        icon.fadeIn();
+                    });
+
+                    // setTimeout(function(){
+                    //     $("#toggleButton").css('background-color', originalColor);
+                    // }, 100);
+                });
+            });
+            </script>
+            <!-- Calculated engine load -->
+            <!-- Intake -->
+            <div class="intake">
+                <!-- Intake manifold absolute pressure -->
+                <div class="topFieldItem">
+                    <div class="iconContainer">
+                        <div class="a3">
+                            <i class="fas fa-tachometer-alt topFieldItemTitle"></i>
+                        </div>
+                    </div>
+                    <p class="topFieldItemValue">2.5 bar</p>
+                </div>
+                <!-- Intake air temperature -->
+                <div class="topFieldItem">
+                    <div class="iconContainer">
+                        <div class="a6">
+                            <i class="fas fa-thermometer-half topFieldItemTitle"></i>
+                        </div>
+                    </div>
+                    <p class="topFieldItemValue">20°C</p>
+                </div>
+            </div>
+
+            <!-- Engine -->
+            <div class="engine">
+                <!-- Calculated engine load -->
+                <div class="topFieldItem">
+                    <div class="iconContainer">
+                        <div class="a1">
+                            <i class="fas fa-tachometer-alt topFieldItemTitle"></i>
+                        </div>
+                    </div>
+                    <p class="topFieldItemValue">50%</p>
+                </div>
+                <!-- Engine coolant temp -->
+                <div class="topFieldItem">
+                    <div class="iconContainer">
+                        <div class="a2">
+                            <i class="fas fa-thermometer-half topFieldItemTitle"></i>
+                        </div>
+                    </div>
+                    <p class="topFieldItemValue">90C</p>
+                </div>
+                <!-- Engine speed  -->
+                <div class="topFieldItem">
+                    <div class="iconContainer">
+                        <div class="a4">
+                            <i class="fas fa-tachometer-alt topFieldItemTitle"></i>
+                        </div>
+                    </div>
+                    <p class="topFieldItemValue">3000 rpm</p>
+                </div>
+            </div>
+
+            <!-- Other -->
+            <div class="other">
+                <!-- Vehicle speed -->
+                <div class="topFieldItem">
+                    <div class="iconContainer">
+                        <div class="a5">
+                            <i class="fas fa-tachometer-alt topFieldItemTitle"></i>
+                        </div>
+                    </div>
+                    <p class="topFieldItemValue">60 km/h</p>
+                </div>
+                <!-- Distance traveled with MIL on -->
+                <div class="topFieldItem">
+                    <div class="iconContainer">
+                        <div class="a7">
+                            <i class="fas fa-exclamation-triangle topFieldItemTitle"></i>
+                        </div>
+                    </div>
+                    <p class="topFieldItemValue">120 km</p>
+                </div>
+                <!-- Fuel tank level input -->
+                <div class="topFieldItem">
+                    <div class="iconContainer">
+                        <div class="a8">
+                            <i class="fas fa-gas-pump topFieldItemTitle"></i>
+                        </div>
+                    </div>
+                    <p class="topFieldItemValue">50%</p>
+                </div>
+                <!-- Control module voltage -->
+                <div class="topFieldItem">
+                    <div class="iconContainer">
+                        <div class="a9">
+                            <i class="fas fa-car-battery topFieldItemTitle"></i>
+                        </div>
+                    </div>
+                    <p class="topFieldItemValue">12.6 V</p>
+                </div>
+            </div>
+    </div>
+    <button id="toggleButton" class="car-button"><i class="fas fa-car-alt"></i></button>
+</body>
+<script>
+    setTimeout(function() {
+        console.log('Checking for updates...');
+
+        $.ajax({
+            url: '/check-for-updates', // replace with your actual check-for-updates URL
+            data: {
+                timestamp: Date.now() // add the current timestamp as a query parameter
+            },
+            success: function(data) {
+                console.log('Received data:', data);
+                if (data.hasUpdate) {
+                    console.log('Update found, reloading page...');
+                    var iframe = $('map');
+                    iframe.attr('src', iframe.attr('src'));
+                }else{
+                    console.log('No updates found');
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error('Error checking for updates:', textStatus, errorThrown);
+            }
+        });
+        //location.reload();
+}, 600);
+</script>

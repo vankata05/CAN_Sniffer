@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+
+<head>
+    <link rel="stylesheet" href="accPageStyles.css"/>
+    <title>CAN_Sniffer</title>
+    <link rel = "icon" href = "icon2.png">
+</head>
+
+<body>
+    <script>
+    function handleMenu(buttonElement){
+        if(buttonElement.id === "open") buttonElement.id = "closed";
+        else buttonElement.id = "open";
+    }
+    </script>
+
+    <div class = "wraper">
+        <button onclick = "handleMenu(this)" id = "closed" class = "menuButton"><img src = "menu.png" style = "width: 100%; height: 100%;"></button>
+        <nav class = "sidebar">
+            <ul>
+                <li><button onclick="window.location.href = '/';"><img src = "home.png" class = "btnImage">Home</button></li>
+                <li><button onclick="window.location.href = '/trackersPage';"><img src = "trackers.png" class = "btnImage">Trackers</button></li>
+                <li><button onclick="window.location.href = '/accountPage';"><img src = "account.png" class = "btnImage">Account</button></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class = "container" id = "homePage">
+        <h1 class = "title">CAN_Sniffer</h1>
+
+        <div class = "formHolder">
+
+            <form class = "formBox" style = "height: 75%;" action="/login", method="post">
+                <p class = "formTitle">Log in</p>
+                <p class = "text">Email</p>
+                <input type = "text" class = "textbox" name="email">
+                <p class = "text">Password</p>
+                <input type = "password" class = "textbox" name="password">
+                <p id = "error" style = "color: rgb(90, 1, 1); margin: 0px; padding: 0px; "><%=login_error%></p>
+                <br>
+                <input type = "Submit" class = "onscreenBtn" value="Login">
+            </form>
+            
+
+            <p id = "divider">or</p>
+
+            <div class="sugnup">
+                <form id="reg_form" class = "formBox" style = "height: 75%;" action="/register" method="post">
+                    <p class = "formTitle">Sign up</p>
+                    <p class = "text">Email</p>
+                    <input id="reg_email" type = "text" class = "textbox" name="email">
+                    <p class = "text">Password</p>
+                    <input id="reg_password" type = "password" class = "textbox" name="password">
+                    <p class = "text">Confirm password</p>
+                    <input id="reg_repeat_password" type = "password" class = "textbox" name="repeat_password">
+                    <p id = "error" style = "color: rgb(90, 1, 1); margin: 0px; padding: 0px; "><%=register_error%></p>
+                    <br>
+                    <input type = "Submit" class = "onscreenBtn" value="Register">
+                </form>
+            </div>
+
+        </div>
+        <p class = "footer"></p>
+    </div> 
+</body>
