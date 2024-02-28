@@ -1,0 +1,2 @@
+../Core/Src/callbacks.c:23:6:HAL_CAN_RxFifo0MsgPendingCallback	2
+../Core/Src/callbacks.c:39:6:HAL_UARTEx_RxEventCallback	9
