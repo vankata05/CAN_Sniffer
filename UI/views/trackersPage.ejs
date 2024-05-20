@@ -47,45 +47,24 @@
             Last Update : <%=reported_at%>
         </p>
 
-        <!-- <div class="LastUpdated">
-            <
-        </div> -->
-
         <div class="topField">
             <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
             <script>
             $(document).ready(function(){
-                // $("#toggleButton").hover(
-                //     function() {
-                //         $(this).css('background-color', '#87CEFA'); // Change to hover color
-                //         $(this).find('i').css('color', '#FFF'); // Change icon color to white
-                //     }, function() {
-                //         $(this).css('background-color', '#FFF'); // Change back to original color
-                //         $(this).find('i').css('color', ''); // Reset icon color
-                //     }
-                // );
-
                 $("#toggleButton").click(function(){
-                    // var originalColor = '#FFF'
-                    // $(this).css('background-color', '#000'); // Change as needed
-
                     $(".topField").slideToggle(function() {
-                        // Check if the topField is visible
                         if (!$(".topField").is(":visible")) {
-                            // If it is visible, reset the grid area of the .map class
                             $(".map").css("grid-area", "a / 1 / c / 4");
                             $(".footer").hide();
                             $(".map").css({"width": "100%", "height": "95%"});
                         }
                     });
                     if ($(".topField").is(":visible")) {
-                        // If it is not visible, make the .map class cover grid areas a and c
                         $(".map").css("grid-area", "b / 1 / c / 4");
                         $(".footer").show();
                         $(".map").css({"width": "100%", "height": "95%"});
                     }
 
-                    // Check the current class of the icon and toggle it
                     var icon = $(this).find('i');
                     icon.fadeOut(200, function() {
                         if (icon.hasClass('fa-car')) {
@@ -95,10 +74,6 @@
                         }
                         icon.fadeIn();
                     });
-
-                    // setTimeout(function(){
-                    //     $("#toggleButton").css('background-color', originalColor);
-                    // }, 100);
                 });
             });
             </script>
@@ -112,7 +87,7 @@
                             <i class="fas fa-tachometer-alt topFieldItemTitle"></i>
                         </div>
                     </div>
-                    <p class="topFieldItemValue">2.5 bar</p>
+                    <p class="topFieldItemValue"><%= intakePressure %> kPa</p>
                 </div>
                 <!-- Intake air temperature -->
                 <div class="topFieldItem">
@@ -121,7 +96,7 @@
                             <i class="fas fa-thermometer-half topFieldItemTitle"></i>
                         </div>
                     </div>
-                    <p class="topFieldItemValue">20°C</p>
+                    <p class="topFieldItemValue"><%= intakeTemp %>°C</p>
                 </div>
             </div>
 
@@ -134,7 +109,7 @@
                             <i class="fas fa-tachometer-alt topFieldItemTitle"></i>
                         </div>
                     </div>
-                    <p class="topFieldItemValue">50%</p>
+                    <p class="topFieldItemValue"><%= engineLoad %>%</p>
                 </div>
                 <!-- Engine coolant temp -->
                 <div class="topFieldItem">
@@ -143,7 +118,7 @@
                             <i class="fas fa-thermometer-half topFieldItemTitle"></i>
                         </div>
                     </div>
-                    <p class="topFieldItemValue">90C</p>
+                    <p class="topFieldItemValue"><%= coolantTemp %>C</p>
                 </div>
                 <!-- Engine speed  -->
                 <div class="topFieldItem">
@@ -152,7 +127,7 @@
                             <i class="fas fa-tachometer-alt topFieldItemTitle"></i>
                         </div>
                     </div>
-                    <p class="topFieldItemValue">3000 rpm</p>
+                    <p class="topFieldItemValue"><%= engineSpeed %> rpm</p>
                 </div>
             </div>
 
@@ -165,7 +140,7 @@
                             <i class="fas fa-tachometer-alt topFieldItemTitle"></i>
                         </div>
                     </div>
-                    <p class="topFieldItemValue">60 km/h</p>
+                    <p class="topFieldItemValue"><%= vehicleSpeed %> km/h</p>
                 </div>
                 <!-- Distance traveled with MIL on -->
                 <div class="topFieldItem">
@@ -174,7 +149,7 @@
                             <i class="fas fa-exclamation-triangle topFieldItemTitle"></i>
                         </div>
                     </div>
-                    <p class="topFieldItemValue">120 km</p>
+                    <p class="topFieldItemValue"><%= distanceTravelled %> km</p>
                 </div>
                 <!-- Fuel tank level input -->
                 <div class="topFieldItem">
@@ -183,7 +158,7 @@
                             <i class="fas fa-gas-pump topFieldItemTitle"></i>
                         </div>
                     </div>
-                    <p class="topFieldItemValue">50%</p>
+                    <p class="topFieldItemValue"><%= fuelLevel %>%</p>
                 </div>
                 <!-- Control module voltage -->
                 <div class="topFieldItem">
@@ -192,7 +167,7 @@
                             <i class="fas fa-car-battery topFieldItemTitle"></i>
                         </div>
                     </div>
-                    <p class="topFieldItemValue">12.6 V</p>
+                    <p class="topFieldItemValue"><%= moduleVoltage %> V</p>
                 </div>
             </div>
     </div>

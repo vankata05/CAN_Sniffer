@@ -35,6 +35,15 @@ client.connect()
 const LoginCollection = client.db("Users").collection("Login");
 const OBDCollection = client.db("test").collection("OBD");
 const GPSCollection = client.db("test").collection("GPS");
+const IntakeMan = client.db("test").collection("0x0B");
+const AirTemp = client.db("test").collection("0x0F");
+const EngLoad = client.db("test").collection("0x04");
+const CoolTemp = client.db("test").collection("0x05");
+const EngSpeed = client.db("test").collection("0x0C");
+const VehSpeed = client.db("test").collection("0x0D");
+const MILONDist = client.db("test").collection("0x21");
+const FuelLevel = client.db("test").collection("0x2F");
+const ModVolt = client.db("test").collection("0x42");
 
 function convertToWGS84(lat, lon) {
     // Extracting degrees, minutes, and seconds for latitude
@@ -153,9 +162,142 @@ app.get("/trackersPage", async(req, res) => {
                         lastUpdate = date;
 
                         // console.log("Raw date: " + payload.reported_at + "\n")
-                        console.log("Reported at: " + date + " by " + FindToken.id + "\n")
+                        console.log("Reported at: " + date + " by " + FindToken.id + Number(json[json.length-1].reported_at) + "\n")
 
-                        await res.render("trackersPage", {coords: (coords.latitude + "," + coords.longitude), reported_at: date})
+                        // calculate vehicle parameters
+                        // fetch data for 0x0B
+                        let intakeMan = await IntakeMan.find({id:FindToken.id}).toArray()
+                        let intakeManJson = JSON.stringify(intakeMan)
+                        intakeManJson = JSON.parse(intakeManJson)
+                        let intakeManPayload = JSON.stringify(intakeManJson[intakeManJson.length-1].payload, null, 2)
+                        // take on 7th and eigth character
+                        let intakeManPayloadBytes = intakeManPayload.slice(7, 9);
+                        // convert to decimal
+                        let intakeManPayloadDecimal = parseInt(intakeManPayloadBytes, 16).toFixed(2);
+
+                        // print raw json only for the newest message
+                        console.log("Intake manifold absolute pressure raw payload: " + intakeManPayloadDecimal + "\n");
+
+                        // fetch data for 0x0F
+                        let airTemp = await AirTemp.find({id:FindToken.id}).toArray()
+                        let airTempJson = JSON.stringify(airTemp)
+                        airTempJson = JSON.parse(airTempJson)
+                        let airTempPayload = JSON.stringify(airTempJson[airTempJson.length-1].payload, null, 2)
+                        // take on 7th and eigth character
+                        let airTempPayloadBytes = airTempPayload.slice(7, 9);
+                        // convert to decimal
+                        let airTempPayloadDecimal = (parseInt(airTempPayloadBytes, 16) - 40).toFixed(2);
+
+                        // print raw json only for the newest message
+                        console.log("Air temperature raw payload: " + airTempPayloadBytes + "\n");
+
+                        // fetch data for 0x04
+                        let engLoad = await EngLoad.find({id:FindToken.id}).toArray()
+                        let engLoadJson = JSON.stringify(engLoad)
+                        engLoadJson = JSON.parse(engLoadJson)
+                        let engLoadPayload = JSON.stringify(engLoadJson[engLoadJson.length-1].payload, null, 2)
+                        // take on 7th and eigth character
+                        let engLoadPayloadBytes = engLoadPayload.slice(7, 9);
+                        // convert to decimal
+                        let engLoadPayloadDecimal = (parseInt(engLoadPayloadBytes, 16) * 100 / 255).toFixed(2);
+
+                        // print raw json only for the newest message
+                        console.log("Engine load raw payload: " + engLoadPayloadBytes + "\n");
+
+                        // fetch data for 0x05
+                        let coolTemp = await CoolTemp.find({id:FindToken.id}).toArray()
+                        let coolTempJson = JSON.stringify(coolTemp)
+                        coolTempJson = JSON.parse(coolTempJson)
+                        let coolTempPayload = JSON.stringify(coolTempJson[coolTempJson.length-1].payload, null, 2)
+                        // take on 7th and eigth character
+                        let coolTempPayloadBytes = coolTempPayload.slice(7, 9);
+                        // convert to decimal
+                        let coolTempPayloadDecimal = (parseInt(coolTempPayloadBytes, 16) - 40).toFixed(2);
+
+                        // print raw json only for the newest message
+                        console.log("Coolant temperature raw payload: " + coolTempPayloadBytes + "\n");
+
+                        // fetch data for 0x0C
+                        let engSpeed = await EngSpeed.find({id:FindToken.id}).toArray()
+                        let engSpeedJson = JSON.stringify(engSpeed)
+                        engSpeedJson = JSON.parse(engSpeedJson)
+                        let engSpeedPayload = JSON.stringify(engSpeedJson[engSpeedJson.length-1].payload, null, 2)
+                        // take on 7th and to tenth character
+                        let engSpeedPayloadBytes = engSpeedPayload.slice(7, 11);
+                        // convert to decimal
+                        let engSpeedPayloadDecimal = (parseInt(engSpeedPayloadBytes, 16) / 4).toFixed(2);
+
+                        // print raw json only for the newest message
+                        console.log("Engine speed raw payload: " + engSpeedPayloadBytes + "\n");
+
+                        // fetch data for 0x0D
+                        let vehSpeed = await VehSpeed.find({id:FindToken.id}).toArray()
+                        let vehSpeedJson = JSON.stringify(vehSpeed)
+                        vehSpeedJson = JSON.parse(vehSpeedJson)
+                        let vehSpeedPayload = JSON.stringify(vehSpeedJson[vehSpeedJson.length-1].payload, null, 2)
+                        // take on 7th and eigth character
+                        let vehSpeedPayloadBytes = vehSpeedPayload.slice(7, 9);
+                        // convert to decimal
+                        let vehSpeedPayloadDecimal = parseInt(vehSpeedPayloadBytes, 16).toFixed(2);
+
+                        // print raw json only for the newest message
+                        console.log("Vehicle speed raw payload: " + vehSpeedPayloadBytes + "\n");
+
+                        // fetch data for 0x21
+                        let milOnDist = await MILONDist.find({id:FindToken.id}).toArray()
+                        let milOnDistJson = JSON.stringify(milOnDist)
+                        milOnDistJson = JSON.parse(milOnDistJson)
+                        let milOnDistPayload = JSON.stringify(milOnDistJson[milOnDistJson.length-1].payload, null, 2)
+                        // take on 7th and eigth character
+                        let milOnDistPayloadBytes = milOnDistPayload.slice(7, 11);
+                        // convert to decimal
+                        let milOnDistPayloadDecimal = parseInt(milOnDistPayloadBytes, 16).toFixed(2);
+
+                        // print raw json only for the newest message
+                        console.log("MIL on distance raw payload: " + milOnDistPayloadBytes + "\n");
+
+                        // fetch data for 0x2F
+                        let fuelLevel = await FuelLevel.find({id:FindToken.id}).toArray()
+                        let fuelLevelJson = JSON.stringify(fuelLevel)
+                        fuelLevelJson = JSON.parse(fuelLevelJson)
+                        let fuelLevelPayload = JSON.stringify(fuelLevelJson[fuelLevelJson.length-1].payload, null, 2)
+                        // take on 7th and eigth character
+                        let fuelLevelPayloadBytes = fuelLevelPayload.slice(7, 9);
+                        // convert to decimal
+                        let fuelLevelPayloadDecimal = (parseInt(fuelLevelPayloadBytes, 16) * 100 / 255).toFixed(2);
+
+                        // print raw json only for the newest message
+                        console.log("Fuel level raw payload: " + fuelLevelPayloadBytes + "\n");
+
+                        // fetch data for 0x42
+                        let modVolt = await ModVolt.find({id:FindToken.id}).toArray()
+                        let modVoltJson = JSON.stringify(modVolt)
+                        modVoltJson = JSON.parse(modVoltJson)
+                        let modVoltPayload = JSON.stringify(modVoltJson[modVoltJson.length-1].payload, null, 2)
+                        // take on 7th and eigth character
+                        let modVoltPayloadBytes = modVoltPayload.slice(7, 11);
+                        // convert to decimal
+                        let modVoltPayloadDecimal = (parseInt(modVoltPayloadBytes, 16) / 1000).toFixed(2);
+
+                        // print raw json only for the newest message
+                        console.log("Module voltage raw payload: " + modVoltPayloadBytes + "\n");
+
+                        // render the page with the data
+                        await res.render("trackersPage", {
+                            coords: (coords.latitude + "," + coords.longitude), 
+                            reported_at: date, 
+                            intakePressure: intakeManPayloadDecimal, 
+                            intakeTemp: airTempPayloadDecimal, 
+                            engineLoad: engLoadPayloadDecimal, 
+                            coolantTemp: coolTempPayloadDecimal, 
+                            engineSpeed: engSpeedPayloadDecimal, 
+                            vehicleSpeed: vehSpeedPayloadDecimal, 
+                            distanceTravelled: milOnDistPayloadDecimal, 
+                            fuelLevel: fuelLevelPayloadDecimal, 
+                            moduleVoltage: modVoltPayloadDecimal
+                        });
+
+                        //await res.render("trackersPage", {coords: (coords.latitude + "," + coords.longitude), reported_at: date})
                         await LoginCollection.updateOne({token:cookie}, {$set:{expire:generateDate()}})
                     }
                     else
