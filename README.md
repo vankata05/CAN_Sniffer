@@ -10,7 +10,7 @@
 </div>
 
 <p align="center">
-  <img src="docs/images/prototype-1.jpg" alt="CAN_Sniffer prototype" width="80%">
+  <img src="docs/images/hero.jpg" alt="CAN_Sniffer assembled prototype board" width="80%">
 </p>
 
 <p align="center">
@@ -144,10 +144,10 @@ The board was iterated through three revisions (see [Prototype Evolution](#proto
 ## Electrical Schematics
 
 <p align="center">
-  <img src="docs/images/schematic-main.png" alt="Main schematic page" width="46%">
-  <img src="docs/images/schematic-gps.png" alt="GPS schematic page" width="46%">
+  <img src="docs/images/schematic-main.png" alt="Main schematic page" width="80%">
 </p>
 <p align="center">
+  <img src="docs/images/schematic-gps.png" alt="GPS schematic page" width="46%">
   <img src="docs/images/schematic-lora-acc.png" alt="LoRa + accelerometer schematic page" width="46%">
 </p>
 
@@ -239,8 +239,6 @@ The `UI/` folder is a small **Node.js / Express** app using **EJS** templates an
 | `0x2F` | Fuel level | `A × 100 / 255` (%) |
 | `0x42` | Control module voltage | `((A×256)+B) / 1000` (V) |
 
-> ⚠️ **Security note for anyone reusing this repo:** `UI/server.js` currently has the MongoDB connection string and the email account credentials **hardcoded**. Before deploying (or making the repo public with real credentials), move these into environment variables (e.g. a `.env` file loaded with `dotenv`, excluded via `.gitignore`) and rotate any credentials that were ever committed.
-
 ---
 
 ## Repository Structure
@@ -276,7 +274,6 @@ CAN_Sniffer/
 cd UI
 npm install
 # Set MONGODB_URI, SMTP credentials, etc. as environment variables
-# (see the Security note above — don't reuse the hardcoded ones from server.js)
 node server.js
 ```
 The app listens on `http://127.0.0.1:3000` by default (`PORT` env var to override).
@@ -289,11 +286,19 @@ The app listens on `http://127.0.0.1:3000` by default (`PORT` env var to overrid
 
 ## Prototype Evolution
 
-| | |
-|---|---|
-| <img src="docs/images/prototype-1.jpg" width="100%"><br><sub>**Bring-up rig** — Wio‑E5 DevKit + STM32F407 Discovery + Quectel L96 + MCP2551, wired together to validate the firmware before committing to a custom PCB.</sub> | <img src="docs/images/prototype-2.jpg" width="100%"><br><sub>Close-up of the Bluetooth/HC‑05 bring‑up wiring.</sub> |
-| <img src="docs/images/pcb-v1.jpg" width="100%"><br><sub>**Rev. 1 PCB** — first custom board. Functional, but with layout issues: oversized pin headers, some incorrectly routed traces.</sub> | <img src="docs/images/board-v1-assembled.jpg" width="100%"><br><sub>Rev. 1, assembled and powered up.</sub> |
-| <img src="docs/images/board-v2.jpg" width="60%"><br><sub>**Rev. 2 PCB** — corrected header footprints and routing.</sub> | |
+<table>
+<tr>
+<td align="center" width="50%"><img src="docs/images/prototype-2.jpg" width="100%"><br><sub><b>Bring-up rig</b> — Wio‑E5 DevKit + STM32F407 Discovery + Quectel L96 + MCP2551, wired together to validate the firmware before committing to a custom PCB.</sub></td>
+<td align="center" width="50%"><img src="docs/images/prototype-1.jpg" width="100%"><br><sub>Close-up of the LoRa‑E5 module during bring‑up wiring.</sub></td>
+</tr>
+<tr>
+<td align="center"><img src="docs/images/pcb-v1.jpg" width="100%"><br><sub><b>Rev. 1 PCB</b> — first custom board. Functional, but with layout issues: oversized pin headers, some incorrectly routed traces.</sub></td>
+<td align="center"><img src="docs/images/board-v1-assembled.jpg" width="100%"><br><sub>Rev. 1, assembled and powered up.</sub></td>
+</tr>
+<tr>
+<td align="center" colspan="2"><img src="docs/images/board-v2.jpg" width="50%"><br><sub><b>Rev. 2 PCB</b> — corrected header footprints and routing; the revision shown in the hero image above.</sub></td>
+</tr>
+</table>
 
 ---
 

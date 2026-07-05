@@ -29,7 +29,7 @@ app.get('/check-for-updates', (req, res) => {
 });
 
 //Connect to DB
-const client = new MongoClient("mongodb+srv://tropcho05:Yim9fX6SKApozmC3@Sniff.x3lngqi.mongodb.net/?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+const client = new MongoClient("mongodb+srv://<!!!REPLACE_WITH_CREDENTIALS!!!>@Sniff.x3lngqi.mongodb.net/?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 client.connect()
 
 const LoginCollection = client.db("Users").collection("Login");
@@ -412,8 +412,8 @@ async function email_authorization()
         port: 465,
         secure: true,
         auth: {
-            user: 'petsafe37@gmail.com',
-            pass: 'qqyokzrqpyelygke'
+            user: '<!!!REPLACE_WITH_CREDENTIALS!!!>',
+            pass: '<!!!REPLACE_WITH_CREDENTIALS!!!>'
         }
     });
 
